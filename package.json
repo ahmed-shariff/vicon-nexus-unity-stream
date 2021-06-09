@@ -1,0 +1,24 @@
+{
+    "name": "ca.umanitoba.hcilab.vicon-nexus-unity-stream",
+    "version": "0.1",
+    "displayName": "vicon-nexus-unity-stream",
+    "description": "Stream data through vicon-nexux-unity-stream-py (https://github.com/ahmed-shariff/vicon-nexus-unity-stream-py)",
+    "unity": "2019.1",
+    "dependencies": {
+        "jillejr.newtonsoft.json-for-unity": "12.0.301"
+    },
+    "author": {
+        "name": "MFA Shariff",
+        "email": "shariff.mfa@outlook.com"
+    },
+    "scopedRegistries": [
+        {
+            "name": "package.openupm.com",
+            "url": "https://package.openupm.com",
+            "scopes": [
+                "com.openupm",
+                "jillejr.newtonsoft.json-for-unity"
+            ]
+        }
+    ]
+}
