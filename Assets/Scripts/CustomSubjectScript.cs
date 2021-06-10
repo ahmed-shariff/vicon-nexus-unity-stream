@@ -86,17 +86,17 @@ namespace umanitoba.hcilab.ViconUnityStream
         {
             if (!enableWriteData)
                 return;
-            // filePath = getPath("input"); 
-            // inputWriter = new StreamWriter(filePath, true);
-            // Debug.Log("Writing to:  " + filePath);
+            filePath = getPath("input"); 
+            inputWriter = new StreamWriter(filePath, true);
+            Debug.Log("Writing to:  " + filePath);
 
-            // filePath = getPath("final"); 
-            // finalWriter = new StreamWriter(filePath, true);
-            // Debug.Log("Writing to:  " + filePath);
+            filePath = getPath("final"); 
+            finalWriter = new StreamWriter(filePath, true);
+            Debug.Log("Writing to:  " + filePath);
 
-            // filePath = getPath("raw"); 
-            // rawWriter = new StreamWriter(filePath, true);
-            // Debug.Log("Writing to:  " + filePath);
+            filePath = getPath("raw"); 
+            rawWriter = new StreamWriter(filePath, true);
+            Debug.Log("Writing to:  " + filePath);
         }
 
         protected void SetupFilter()
@@ -105,12 +105,11 @@ namespace umanitoba.hcilab.ViconUnityStream
 
         private string getPath(string suffix)
         {
-            return "";
-            // #if UNITY_EDITOR
+            //#if UNITY_EDITOR
             //         return Application.dataPath + "/Data/"  + "Saved_Inventory.csv";
             //         //"Participant " + "   " + DateTime.Now.ToString("dd-MM-yy   hh-mm-ss") + ".csv";
             // #elif UNITY_ANDROID
-            //return Application.persistentDataPath + "/stream_" + suffix + "_" + this.transform.name + "_" + SceneProperties.instance.initTicks + ".csv";
+            return Application.persistentDataPath + "/stream_" + suffix + "_" + this.transform.name + "_" + DateTime.Now.ToString("dd-MM-yy hh-mm-ss") + ".csv";
             // #elif UNITY_IPHONE
             //         return Application.persistentDataPath+"/"+"Saved_Inventory.csv";
             // #else
@@ -120,18 +119,20 @@ namespace umanitoba.hcilab.ViconUnityStream
 
         public void writeData()
         {
-            // if (!enableWriteData || SceneProperties.instance.useDefaultData)
-            //     return;
+            if (!enableWriteData || useDefaultData)
+                return;
+            
+            var currentTicks = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            
             // // Debug.Log(string.Join(",", finalPositionQuaternion.Select(kvp => "[" +kvp.Key + ", " + kvp.Value.ToString("F4") + "]")));
-            // inputWriter.WriteLine(SceneProperties.instance.currentTicks + ", " + "{" + string.Join(",", segments.Select(kvp => "[" +kvp.Key + ", " + kvp.Value.ToString("F6") + "]")) + "}");
-            // inputWriter.Flush();
+            inputWriter.WriteLine(currentTicks + ", " + "{" + string.Join(",", segments.Select(kvp => "[" +kvp.Key + ", " + kvp.Value.ToString("F6") + "]")) + "}");
+            inputWriter.Flush();
 
-            // finalWriter.WriteLine(SceneProperties.instance.currentTicks + ", " +
-            //                       constructFinalWriterString());
-            // finalWriter.Flush();
+            finalWriter.WriteLine(currentTicks + ", " + constructFinalWriterString());
+            finalWriter.Flush();
 
-            // rawWriter.WriteLine(SceneProperties.instance.currentTicks + ", " + rawData);
-            // rawWriter.Flush();
+            rawWriter.WriteLine(currentTicks + ", " + rawData);
+            rawWriter.Flush();
         }
 
         protected virtual string constructFinalWriterString()
@@ -325,13 +326,13 @@ namespace umanitoba.hcilab.ViconUnityStream
         {
             if (enableWriteData)
             {
-                // Debug.Log("Closing file: " + filePath);
-                // if (inputWriter != null)
-                //     inputWriter.Close();
-                // if (finalWriter != null)
-                //     finalWriter.Close();
-                // if (rawWriter != null)
-                //     rawWriter.Close();
+                Debug.Log("Closing file: " + filePath);
+                if (inputWriter != null)
+                    inputWriter.Close();
+                if (finalWriter != null)
+                    finalWriter.Close();
+                if (rawWriter != null)
+                    rawWriter.Close();
             }
         }
     }
