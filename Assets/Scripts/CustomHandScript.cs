@@ -9,7 +9,7 @@ using UnityEngine.Networking;
 // using ViconDataStreamSDK.DotNET;
 using Newtonsoft.Json;
 
-namespace ViconUnityStream
+namespace umanitoba.hcilab.ViconUnityStream
 {
     public class CustomHandScript : CustomSubjectScript
     {
