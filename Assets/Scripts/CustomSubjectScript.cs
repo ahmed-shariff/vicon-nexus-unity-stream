@@ -30,6 +30,7 @@ namespace umanitoba.hcilab.ViconUnityStream
         private IEnumerator e;
 
         public Text outputText;
+        public event System.Action<Dictionary<string, Transform>> PostTransformCallback;
 
         bool _sensorTriggered;
         public bool sensorTriggered {
@@ -59,6 +60,7 @@ namespace umanitoba.hcilab.ViconUnityStream
         string rawData;
     
         protected Dictionary<string, Vector3> finalPositionVectors = new Dictionary<string, Vector3>();
+        protected Dictionary<string, Transform> finalTransforms = new Dictionary<string, Transform>();
         protected Dictionary<string, Vector3> finalUpVectors = new Dictionary<string, Vector3>();
         protected Dictionary<string, Vector3> finalForwardVectors = new Dictionary<string, Vector3>();
     
@@ -258,6 +260,9 @@ namespace umanitoba.hcilab.ViconUnityStream
             // inputWriter.Flush();
             transform.root.position = segments[rootSegment] *scale_1;
             FindAndTransform(transform.root, rootSegment);
+
+            if (PostTransformCallback != null)
+                PostTransformCallback(finalTransforms);
         }
 
         protected virtual Dictionary<string, Vector3> processSegments(Dictionary<string, Vector3> segments, Data data)
@@ -310,6 +315,7 @@ namespace umanitoba.hcilab.ViconUnityStream
         protected void addBoneDataToWriter(Transform Bone)
         {
             finalPositionVectors[Bone.name] = Bone.position;
+            finalTransforms[Bone.name] = Bone;
             // finalPositionQuaternion[Bone.name] = Bone.rotation;
             finalUpVectors[Bone.name] = Bone.up;
             finalForwardVectors[Bone.name] = Bone.forward;
