@@ -5,6 +5,7 @@
     "description": "Stream data through vicon-nexux-unity-stream-py (https://github.com/ahmed-shariff/vicon-nexus-unity-stream-py)",
     "unity": "2019.1",
     "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "3.0.1"
     },
     "author": {
         "name": "MFA Shariff",
