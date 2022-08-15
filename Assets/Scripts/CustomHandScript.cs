@@ -1,13 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking;
-
-//// using ViconDataStreamSDK.CSharp;
-
-// using ViconDataStreamSDK.DotNET;
-using Newtonsoft.Json;
 
 namespace umanitoba.hcilab.ViconUnityStream
 {
@@ -114,7 +106,7 @@ namespace umanitoba.hcilab.ViconUnityStream
         private Dictionary<string, Vector3> previousSegments = new Dictionary<string, Vector3>();
 
 
-        protected override Dictionary<string, Vector3> processSegments(Dictionary<string, Vector3> segments, Data data)
+        protected override Dictionary<string, Vector3> ProcessSegments(Dictionary<string, Vector3> segments, Data data)
         {
             palm = segments["Hand"] - (segments["R3D1"] + 0.5f * (segments["R4D1"] - segments["R4D1"]));
             normal = Vector3.Cross(palm, segments["R4D1"] - segments["R3D1"]);
@@ -145,9 +137,9 @@ namespace umanitoba.hcilab.ViconUnityStream
 
         private Matrix4x4 handWorldToLocalMatrix;
     
-        protected override string constructFinalWriterString()
+        protected override string ConstructFinalWriterString()
         {
-            return "[" + base.constructFinalWriterString() + ", [" +
+            return "[" + base.ConstructFinalWriterString() + ", [" +
                 handWorldToLocalMatrix[0, 0] + ", " + handWorldToLocalMatrix[0, 1] + ", " + handWorldToLocalMatrix[0, 2] + ", " + handWorldToLocalMatrix[0, 3] + ", " +
                 handWorldToLocalMatrix[1, 0] + ", " + handWorldToLocalMatrix[1, 1] + ", " + handWorldToLocalMatrix[1, 2] + ", " + handWorldToLocalMatrix[1, 3] + ", " +
                 handWorldToLocalMatrix[2, 0] + ", " + handWorldToLocalMatrix[2, 1] + ", " + handWorldToLocalMatrix[2, 2] + ", " + handWorldToLocalMatrix[2, 3] + ", " +
@@ -245,7 +237,7 @@ namespace umanitoba.hcilab.ViconUnityStream
                     }
                 }
             }
-            addBoneDataToWriter(Bone);
+            AddBoneDataToWriter(Bone);
             if (Bone.name == "Hand")
                 handWorldToLocalMatrix = Bone.worldToLocalMatrix;
         }

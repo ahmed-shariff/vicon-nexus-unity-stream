@@ -7,10 +7,6 @@ using System.Net.Http;
 using System;
 using System.IO;
 using System.Linq;
-
-//// using ViconDataStreamSDK.CSharp;
-
-// using ViconDataStreamSDK.DotNET;
 using Newtonsoft.Json;
 
 namespace umanitoba.hcilab.ViconUnityStream
@@ -88,15 +84,15 @@ namespace umanitoba.hcilab.ViconUnityStream
         {
             if (!enableWriteData)
                 return;
-            filePath = getPath("input"); 
+            filePath = GetPath("input"); 
             inputWriter = new StreamWriter(filePath, true);
             Debug.Log("Writing to:  " + filePath);
 
-            filePath = getPath("final"); 
+            filePath = GetPath("final"); 
             finalWriter = new StreamWriter(filePath, true);
             Debug.Log("Writing to:  " + filePath);
 
-            filePath = getPath("raw"); 
+            filePath = GetPath("raw"); 
             rawWriter = new StreamWriter(filePath, true);
             Debug.Log("Writing to:  " + filePath);
         }
@@ -105,7 +101,7 @@ namespace umanitoba.hcilab.ViconUnityStream
         {
         }
 
-        private string getPath(string suffix)
+        private string GetPath(string suffix)
         {
             //#if UNITY_EDITOR
             //         return Application.dataPath + "/Data/"  + "Saved_Inventory.csv";
@@ -119,7 +115,7 @@ namespace umanitoba.hcilab.ViconUnityStream
             // #endif
         }
 
-        public void writeData()
+        public void WriteData()
         {
             if (!enableWriteData || useDefaultData)
                 return;
@@ -130,14 +126,14 @@ namespace umanitoba.hcilab.ViconUnityStream
             inputWriter.WriteLine(currentTicks + ", " + "{" + string.Join(",", segments.Select(kvp => "[" +kvp.Key + ", " + kvp.Value.ToString("F6") + "]")) + "}");
             inputWriter.Flush();
 
-            finalWriter.WriteLine(currentTicks + ", " + constructFinalWriterString());
+            finalWriter.WriteLine(currentTicks + ", " + ConstructFinalWriterString());
             finalWriter.Flush();
 
             rawWriter.WriteLine(currentTicks + ", " + rawData);
             rawWriter.Flush();
         }
 
-        protected virtual string constructFinalWriterString()
+        protected virtual string ConstructFinalWriterString()
         {
             return "{ 'positions':" + string.Join(",", finalPositionVectors.Select(kvp => "[" +kvp.Key + ", " + kvp.Value.ToString("F6") + "]")) +
                 ", 'up':" + string.Join(",", finalUpVectors.Select(kvp => "[" +kvp.Key + ", " + kvp.Value.ToString("F6") + "]")) +
@@ -151,7 +147,7 @@ namespace umanitoba.hcilab.ViconUnityStream
                 processedRequest = false;
                 if (useDefaultData)
                 {
-                    processData(defaultData);
+                    ProcessData(defaultData);
                     processedRequest = true;
                     processFrameFlag = true;
                 }
@@ -171,7 +167,7 @@ namespace umanitoba.hcilab.ViconUnityStream
                 yield return webRequest.SendWebRequest();
                 string[] pages = uri.Split('/');
                 int page = pages.Length - 1;
-                if (webRequest.isNetworkError)
+                if (webRequest.result != UnityWebRequest.Result.Success)
                 {
                     Debug.Log(pages[page] + ": Error: " + webRequest.error);
                     Debug.Log(pages[page] + ": Error: " + uri);
@@ -181,7 +177,7 @@ namespace umanitoba.hcilab.ViconUnityStream
                     // Debug.Log(data.sensorTriggered.ToString());
 
                     try{
-                        processData(webRequest.downloadHandler.text);
+                        ProcessData(webRequest.downloadHandler.text);
                     } catch(Exception err){
                         Debug.Log("Exception: " + err.ToString());
                         Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
@@ -197,11 +193,11 @@ namespace umanitoba.hcilab.ViconUnityStream
 	
             string content = await client.GetStringAsync(uri);
             Debug.Log(uri + "\nReceived: " + content);
-            processData(content);
+            ProcessData(content);
             processedRequest = true;
         }
 
-        void processData(string inputText)
+        void ProcessData(string inputText)
         {
             rawData = inputText;
             Data data = JsonConvert.DeserializeObject<Data>(inputText);
@@ -255,7 +251,7 @@ namespace umanitoba.hcilab.ViconUnityStream
                 segments[segment.Key] = pos/segment.Value.Count;
                 segmentsRotation[segment.Key] = rot;
             }
-            segments = processSegments(segments, data);
+            segments = ProcessSegments(segments, data);
             // inputWriter.WriteLine(SceneProperties.currentTicks + ", " + "{" + string.Join(",", segments) + "}");
             // inputWriter.Flush();
             transform.root.position = segments[rootSegment] *scale_1;
@@ -263,9 +259,11 @@ namespace umanitoba.hcilab.ViconUnityStream
 
             if (PostTransformCallback != null)
                 PostTransformCallback(finalTransforms);
+
+            WriteData();
         }
 
-        protected virtual Dictionary<string, Vector3> processSegments(Dictionary<string, Vector3> segments, Data data)
+        protected virtual Dictionary<string, Vector3> ProcessSegments(Dictionary<string, Vector3> segments, Data data)
         {
             return segments;
         }
@@ -309,10 +307,10 @@ namespace umanitoba.hcilab.ViconUnityStream
                 Bone.rotation = segmentsRotation[BoneName];
                 // Debug.Log(")))))))))))))))))))))))))))))))))))) " + Bone.position);
             }
-            addBoneDataToWriter(Bone);
+            AddBoneDataToWriter(Bone);
         }
 
-        protected void addBoneDataToWriter(Transform Bone)
+        protected void AddBoneDataToWriter(Transform Bone)
         {
             finalPositionVectors[Bone.name] = Bone.position;
             finalTransforms[Bone.name] = Bone;
