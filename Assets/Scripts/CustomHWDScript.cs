@@ -10,10 +10,13 @@ namespace umanitoba.hcilab.ViconUnityStream
         {
             Vector3 forward = segments["base2"] - segments["base1"];
             Vector3 up = Vector3.Cross(forward, segments["base3"] - segments["base4"]);
-            Quaternion rotation = Quaternion.LookRotation(forward, up);
-            foreach(var key in segmentsRotation.Keys.ToArray())
+            if (forward != Vector3.zero && up != Vector3.zero)
             {
-                segmentsRotation[key] = rotation;
+                Quaternion rotation = Quaternion.LookRotation(forward, up);
+                foreach (var key in segmentsRotation.Keys.ToArray())
+                {
+                    segmentsRotation[key] = rotation;
+                }
             }
             return segments;
         }

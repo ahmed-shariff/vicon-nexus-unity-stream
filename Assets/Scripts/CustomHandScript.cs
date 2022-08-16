@@ -130,7 +130,8 @@ namespace umanitoba.hcilab.ViconUnityStream
             else
             {
                 noHand = false;
-                transform.root.rotation = Quaternion.LookRotation(-normal, -palm);
+                if (normal != Vector3.zero)
+                    transform.root.rotation = Quaternion.LookRotation(-normal, -palm);
             }
             return segments;
         }
@@ -173,7 +174,7 @@ namespace umanitoba.hcilab.ViconUnityStream
                 // string childName = segmentChild[BoneName];
                 if (BoneName == "PalmBase")
                 {
-                    if (!noHand)
+                    if (!noHand && BonePosition != Vector3.zero)
                         Bone.rotation = Quaternion.LookRotation(-BonePosition.normalized, -palm);
                     Bone.position = Bone.parent.position - Bone.forward * scale_2 - Bone.up * scale_2;
                     // Debug.Log("===========================  " + Bone.position);
