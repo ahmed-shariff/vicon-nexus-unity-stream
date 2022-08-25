@@ -154,86 +154,95 @@ namespace umanitoba.hcilab.ViconUnityStream
 
             //if (segmentParents.ContainsKey(BoneName) && segments.ContainsKey(BoneName))
             if (segments.ContainsKey(BoneName))
-                //if (segmentChild.ContainsKey(BoneName) && segments.ContainsKey(BoneName))
+            //if (segmentChild.ContainsKey(BoneName) && segments.ContainsKey(BoneName))
             {
                 Vector3 BonePosition = segments[BoneName];
-                bool usePreviousSegments = false;
-                // if (BonePosition == Vector3.zero && !noHand)
-                // {
-                //     if (previousSegments.ContainsKey(BoneName))
-                //         BonePosition = previousSegments[BoneName];
-                //     usePreviousSegments = true;
-                //     Debug.Log(BoneName +"   "+BonePosition + " " + usePreviousSegments + " "+ previousSegments[BoneName]);
-                // }
-                // else
-                // {
-                //     previousSegments[BoneName] = BonePosition;
-                // }
-	    
-                //string ParentName = segmentParents[BoneName];
-                // string childName = segmentChild[BoneName];
-                if (BoneName == "PalmBase")
+
+                if (gapFillingStrategy != GapFillingStrategy.Ignore || BonePosition != Vector3.zero)
                 {
-                    if (!noHand && BonePosition != Vector3.zero)
-                        Bone.rotation = Quaternion.LookRotation(-BonePosition.normalized, -palm);
-                    Bone.position = Bone.parent.position - Bone.forward * scale_2 - Bone.up * scale_2;
-                    // Debug.Log("===========================  " + Bone.position);
-                }
-                else
-                {
-                    string fingerId = BoneName.Substring(0, 2);
-                    if (setPosition)
+                    bool usePreviousSegments = false;
+                    // if (BonePosition == Vector3.zero && !noHand)
+                    // {
+                    //     if (previousSegments.ContainsKey(BoneName))
+                    //         BonePosition = previousSegments[BoneName];
+                    //     usePreviousSegments = true;
+                    //     Debug.Log(BoneName +"   "+BonePosition + " " + usePreviousSegments + " "+ previousSegments[BoneName]);
+                    // }
+                    // else
+                    // {
+                    //     previousSegments[BoneName] = BonePosition;
+                    // }
+
+                    //string ParentName = segmentParents[BoneName];
+                    // string childName = segmentChild[BoneName];
+                    if (BoneName == "PalmBase")
                     {
-                        Bone.position = BonePosition * scale_1; // Bone.parent.InverseTransformPoint();
+                        if (!noHand && BonePosition != Vector3.zero)
+                            Bone.rotation = Quaternion.LookRotation(-BonePosition.normalized, -palm);
+                        Bone.position = Bone.parent.position - Bone.forward * scale_2 - Bone.up * scale_2;
+                        // Debug.Log("===========================  " + Bone.position);
                     }
-                    // if (fingerId)
-                    // + normal.normalized * normalOffset
-                    if (setScale)
+                    else
                     {
-                        Transform p = Bone.parent;
-                        Bone.parent = null;
-                        Bone.localScale = Vector3.one * scale_2;
-                        Bone.parent = p;
-                    }
-                    // Debug.Log("===========================+++++++++  " + Bone.position);
-                    if (!usePreviousSegments)
-                    {
-                        if (segmentChild.ContainsKey(BoneName))
-                        {
-                            if (baseVectors.ContainsKey(fingerId))
-                            {
-                                Vector3 upDirection = segments[segmentChild[BoneName]] - BonePosition;
-                                if (upDirection != Vector3.zero)
-                                {
-                                    Vector3 right;
-                                    Vector3 forward;
-                                    if (fingerId == "R1"){
-                                        right = baseVectors["R1_right"];
-                                        //right = Vector3.Cross(normal, baseVectors[fingerId]);
-                                        forward = Vector3.Cross(upDirection, right);
-                                    }else{
-                                        right = Vector3.Cross(normal, baseVectors[fingerId]);
-                                        forward = Vector3.Cross(upDirection, right);
-                                    }
-                                    if (forward != Vector3.zero)
-                                        Bone.rotation = Quaternion.LookRotation(forward, upDirection);
-                                }
-                            }
-                        } else {
-                            // Bone.rotation = Quaternion.identity;
-                        }
+                        string fingerId = BoneName.Substring(0, 2);
                         if (setPosition)
                         {
-                            if (fingerId == "R1")
-                                Bone.position += Bone.forward * normalOffset * 0.9f;
-                            else if (fingerId == "R3")
-                                Bone.position += Bone.forward * normalOffset * 1.08f;
-                            else if (fingerId == "R4")
-                                Bone.position += Bone.forward * normalOffset * 1.13f;
-                            else if (fingerId == "R5")
-                                Bone.position += Bone.forward * normalOffset * 1.2f;
+                            Bone.position = BonePosition * scale_1; // Bone.parent.InverseTransformPoint();
+                        }
+                        // if (fingerId)
+                        // + normal.normalized * normalOffset
+                        if (setScale)
+                        {
+                            Transform p = Bone.parent;
+                            Bone.parent = null;
+                            Bone.localScale = Vector3.one * scale_2;
+                            Bone.parent = p;
+                        }
+                        // Debug.Log("===========================+++++++++  " + Bone.position);
+                        if (!usePreviousSegments)
+                        {
+                            if (segmentChild.ContainsKey(BoneName))
+                            {
+                                if (baseVectors.ContainsKey(fingerId))
+                                {
+                                    Vector3 upDirection = segments[segmentChild[BoneName]] - BonePosition;
+                                    if (upDirection != Vector3.zero)
+                                    {
+                                        Vector3 right;
+                                        Vector3 forward;
+                                        if (fingerId == "R1")
+                                        {
+                                            right = baseVectors["R1_right"];
+                                            //right = Vector3.Cross(normal, baseVectors[fingerId]);
+                                            forward = Vector3.Cross(upDirection, right);
+                                        }
+                                        else
+                                        {
+                                            right = Vector3.Cross(normal, baseVectors[fingerId]);
+                                            forward = Vector3.Cross(upDirection, right);
+                                        }
+                                        if (forward != Vector3.zero)
+                                            Bone.rotation = Quaternion.LookRotation(forward, upDirection);
+                                    }
+                                }
+                            }
                             else
-                                Bone.position += Bone.forward * normalOffset;
+                            {
+                                // Bone.rotation = Quaternion.identity;
+                            }
+                            if (setPosition)
+                            {
+                                if (fingerId == "R1")
+                                    Bone.position += Bone.forward * normalOffset * 0.9f;
+                                else if (fingerId == "R3")
+                                    Bone.position += Bone.forward * normalOffset * 1.08f;
+                                else if (fingerId == "R4")
+                                    Bone.position += Bone.forward * normalOffset * 1.13f;
+                                else if (fingerId == "R5")
+                                    Bone.position += Bone.forward * normalOffset * 1.2f;
+                                else
+                                    Bone.position += Bone.forward * normalOffset;
+                            }
                         }
                     }
                 }

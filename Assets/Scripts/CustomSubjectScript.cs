@@ -28,6 +28,9 @@ namespace umanitoba.hcilab.ViconUnityStream
         public Text outputText;
         public event System.Action<Dictionary<string, Transform>> PostTransformCallback;
 
+        [SerializeField]
+        protected GapFillingStrategy gapFillingStrategy = GapFillingStrategy.UseRemote;
+
         bool _sensorTriggered;
         public bool sensorTriggered {
             get
@@ -208,19 +211,31 @@ namespace umanitoba.hcilab.ViconUnityStream
                 outputText.text = data.sensorTriggered.ToString();
                 outputText.color = data.sensorTriggered ? Color.red: Color.blue;
             }
+
             foreach (KeyValuePair<string, List<string>> segment in segmentMarkers)
             {
-                // do something with entry.Value or entry.Key
-                Vector3 pos = new Vector3(0.0f, 0.0f, 0.0f);
-                //
-                Quaternion rot = new Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
+                Vector3 pos = Vector3.zero;
+                Quaternion rot = Quaternion.identity;
+                bool dataValid = true;
 
                 foreach (string marker in segment.Value)
                 {
                     var _data = data.data[marker];
-                    if (_data[0] == 0 && previousData.ContainsKey(marker))
+
+                    // Need to run gap fillling stratergy
+                    if (_data[0] == 0)
                     {
-                        _data = previousData[marker];
+                        if (gapFillingStrategy == GapFillingStrategy.UsePrevious && previousData.ContainsKey(marker))
+                        {
+                            _data = previousData[marker];
+                        }
+                        // NOTE: Rest of GapFillingStrategy.Ignore handled in ApplyBoneTransform
+                        else if(gapFillingStrategy == GapFillingStrategy.Ignore)
+                        {
+                            dataValid = false;
+                            break;
+                        }
+                        // GapFillingStrategy.UseRemote, basically means to use the _data as recived. Nothing to do for that case
                     }
                     else
                     {
@@ -232,8 +247,9 @@ namespace umanitoba.hcilab.ViconUnityStream
                         //         _data[i] = _filter[i].Filter(_data[i]);
                         //     }
                         // }
-                        // previousData[marker] = _data;
+                        previousData[marker] = _data;
                     }
+
                     data.data[marker] = _data;
                     List<float> _pos = data.data[marker];
                     pos.x += _pos[0];
@@ -248,8 +264,16 @@ namespace umanitoba.hcilab.ViconUnityStream
                         rot.w = _pos[6];
                     }
                 }
-                segments[segment.Key] = pos/segment.Value.Count;
-                segmentsRotation[segment.Key] = rot;
+                if (dataValid)
+                {
+                    segments[segment.Key] = pos / segment.Value.Count;
+                    segmentsRotation[segment.Key] = rot;
+                }
+                else
+                {
+                    segments[segment.Key] = Vector3.zero;
+                    segmentsRotation[segment.Key] = Quaternion.identity;
+                }
             }
             segments = ProcessSegments(segments, data);
             // inputWriter.WriteLine(SceneProperties.currentTicks + ", " + "{" + string.Join(",", segments) + "}");
@@ -339,5 +363,11 @@ namespace umanitoba.hcilab.ViconUnityStream
                     rawWriter.Close();
             }
         }
+    }
+
+    public enum GapFillingStrategy{
+        UseRemote,
+        Ignore,
+        UsePrevious
     }
 }
