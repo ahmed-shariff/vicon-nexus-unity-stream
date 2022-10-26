@@ -234,7 +234,7 @@ namespace umanitoba.hcilab.ViconUnityStream
                     /// Need to run gap fillling stratergy
                     if (_data[0] == 0)
                     {
-                        if (gapFillingStrategy == GapFillingStrategy.UsePrevious && previousData.ContainsKey(marker))
+                        if (gapFillingStrategy == GapFillingStrategy.UsePrevious && previousData.ContainsKey(marker) && previousData[marker].Count > 0)
                         {
                             _data = GetPreviousData(marker);
                         }
@@ -246,12 +246,13 @@ namespace umanitoba.hcilab.ViconUnityStream
                         }
                         else if (gapFillingStrategy == GapFillingStrategy.FillRelative)
                         {
-                            ///makes sense to do this only if thre are more than one markers
+                            /// FillRelative would be a special case of Ignore
+                            dataValid = false;
+                            /// makes sense to do this only if thre are more than one markers
                             if (segment.Value.Count > 1)
                             {
                                 /// Pushing to the quque so that all markers in the group have the same index;
                                 SetPreviousData(marker, _data);
-                                dataValid = false;
                                 invalidMarkers.Add(marker);
                             }
                         }
@@ -269,15 +270,14 @@ namespace umanitoba.hcilab.ViconUnityStream
                         // }
                         SetPreviousData(marker, _data);
                     }
-
                     data.data[marker] = _data;
                 }
 
-                if (gapFillingStrategy == GapFillingStrategy.FillRelative && !dataValid)
+                if (gapFillingStrategy == GapFillingStrategy.FillRelative && !dataValid && segment.Value.Count > 1)
                 {
                     /// If all data is invalid or there is no previous data,
                     /// skip that data from being commited to previousData
-                    if (invalidMarkers.Count == segment.Value.Count || previousData[segment.Value[0]].Count > 1)
+                    if (invalidMarkers.Count == segment.Value.Count || previousData[segment.Value[0]].Count <= 1)
                     {
                         foreach(string marker in segment.Value)
                         {
@@ -308,8 +308,9 @@ namespace umanitoba.hcilab.ViconUnityStream
 
                             /// Set the new value to the previous list
                             previousData[t_marker].Last.Value[0] = t_current_vector.x;
-                            previousData[t_marker].Last.Value[1] = t_current_vector.y;
-                            previousData[t_marker].Last.Value[2] = t_current_vector.z;
+                            /// z <-> y because of difference in coord system of vicon and unity
+                            previousData[t_marker].Last.Value[1] = t_current_vector.z;
+                            previousData[t_marker].Last.Value[2] = t_current_vector.y;
 
                             /// Set that to the current data object
                             data.data[t_marker] = GetPreviousData(t_marker);
@@ -323,7 +324,7 @@ namespace umanitoba.hcilab.ViconUnityStream
                     foreach (string marker in segment.Value)
                     {
                         List<float> _pos = data.data[marker];
-                        pos = ListToVector(_pos);
+                        pos += ListToVector(_pos);
                         //break;
                         if (_pos.Count > 3)
                         {
@@ -357,9 +358,11 @@ namespace umanitoba.hcilab.ViconUnityStream
             WriteData();
         }
 
-        private Vector3 ListToVector(IList<float> list)
+        private Vector3 ListToVector(List<float> list)
         {
-            return new Vector3(list[0], list[1], list[3]);
+            /// The vicon output uses a different coordinate system
+            /// z <-> y because of difference in coord system of vicon and unity
+            return new Vector3(list[0], list[2], list[1]);
         }
 
         private List<float> GetPreviousData(string marker)
@@ -370,7 +373,15 @@ namespace umanitoba.hcilab.ViconUnityStream
         /// makses sure the length of the queue is going to be fixed (by previousDataQueueLimit)
         private void SetPreviousData(string marker, List<float> value)
         {
-            LinkedList<List<float>> _previousData = previousData[marker];
+            LinkedList<List<float>> _previousData;
+            if (!previousData.ContainsKey(marker))
+            {
+                _previousData = previousData[marker] = new LinkedList<List<float>>();
+            }
+            else
+            {
+                _previousData = previousData[marker];
+            }
             _previousData.AddLast(value);
         }
 

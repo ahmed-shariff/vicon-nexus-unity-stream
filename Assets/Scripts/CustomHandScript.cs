@@ -121,7 +121,7 @@ namespace umanitoba.hcilab.ViconUnityStream
             var p2 = data.data["RTH3"];
 
             /// If one of the datapoints is missing, use the previous values, do this by not modifying the baseVectors
-            if (p1[0] == 0 || p2[0] == 0)
+            if (p1[0] != 0 || p2[0] != 0)
             {
                 baseVectors["R1_right"] = (new Vector3(p2[0], p2[2], p2[1])) - (new Vector3(p1[0], p1[2], p1[1]));
             }
@@ -164,7 +164,7 @@ namespace umanitoba.hcilab.ViconUnityStream
                 Vector3 BonePosition = segments[BoneName];
 
                 /// Ignore setting pos/rot/scale if GapFillingStrategy.Ignore and BonePosition is zero
-                if (gapFillingStrategy != GapFillingStrategy.Ignore || BonePosition != Vector3.zero)
+                if (!(gapFillingStrategy == GapFillingStrategy.Ignore || gapFillingStrategy == GapFillingStrategy.FillRelative) || BonePosition != Vector3.zero)
                 {
                     // bool usePreviousSegments = false;
                     // if (BonePosition == Vector3.zero && !noHand)
