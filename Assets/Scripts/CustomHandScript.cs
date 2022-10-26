@@ -119,7 +119,12 @@ namespace umanitoba.hcilab.ViconUnityStream
             // Debug.Log(data.data["RTH3P"] + "  -  "+ data.data["RTH3"]);
             var p1 = data.data["RTH3P"];
             var p2 = data.data["RTH3"];
-            baseVectors["R1_right"] = (new Vector3(p2[0], p2[2], p2[1])) - (new Vector3(p1[0], p1[2], p1[1]));
+
+            /// If one of the datapoints is missing, use the previous values, do this by not modifying the baseVectors
+            if (p1[0] == 0 || p2[0] == 0)
+            {
+                baseVectors["R1_right"] = (new Vector3(p2[0], p2[2], p2[1])) - (new Vector3(p1[0], p1[2], p1[1]));
+            }
             // Vector3.Cross(segments["R1D4"] - segments["R1D3"], segments["R1D3"] - segments["R1D2"]);
             // Debug.DrawRay(segments["R3D1"], normal);
             //Debug.Log(normal.magnitude);
@@ -158,9 +163,10 @@ namespace umanitoba.hcilab.ViconUnityStream
             {
                 Vector3 BonePosition = segments[BoneName];
 
+                /// Ignore setting pos/rot/scale if GapFillingStrategy.Ignore and BonePosition is zero
                 if (gapFillingStrategy != GapFillingStrategy.Ignore || BonePosition != Vector3.zero)
                 {
-                    bool usePreviousSegments = false;
+                    // bool usePreviousSegments = false;
                     // if (BonePosition == Vector3.zero && !noHand)
                     // {
                     //     if (previousSegments.ContainsKey(BoneName))
@@ -199,7 +205,9 @@ namespace umanitoba.hcilab.ViconUnityStream
                             Bone.parent = p;
                         }
                         // Debug.Log("===========================+++++++++  " + Bone.position);
-                        if (!usePreviousSegments)
+                        /// This was usePrevious; now handled in the ProcessData in CustomSubjectScript
+                        /// with GapFillingStrategy.UsePrevious
+                        if (true)
                         {
                             if (segmentChild.ContainsKey(BoneName))
                             {

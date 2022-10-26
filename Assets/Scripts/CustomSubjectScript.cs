@@ -22,7 +22,7 @@ namespace umanitoba.hcilab.ViconUnityStream
         public bool enableWriteData = true;
         private bool processedRequest = true;
         private static readonly HttpClient client = new HttpClient();
-        
+
         private IEnumerator e;
 
         public Text outputText;
@@ -32,7 +32,8 @@ namespace umanitoba.hcilab.ViconUnityStream
         protected GapFillingStrategy gapFillingStrategy = GapFillingStrategy.UseRemote;
 
         bool _sensorTriggered;
-        public bool sensorTriggered {
+        public bool sensorTriggered
+        {
             get
             {
                 return _sensorTriggered;
@@ -47,9 +48,9 @@ namespace umanitoba.hcilab.ViconUnityStream
                 _sensorTriggered = value && !expectSensorChange;
             }
         }
-        public bool expectSensorChange {get; set;}
-        public bool processFrameFlag {get; set;}
-    
+        public bool expectSensorChange { get; set; }
+        public bool processFrameFlag { get; set; }
+
         Data data;
         string filePath;
         StreamWriter inputWriter;
@@ -57,17 +58,18 @@ namespace umanitoba.hcilab.ViconUnityStream
         StreamWriter rawWriter;
 
         string rawData;
-    
+
         protected Dictionary<string, Vector3> finalPositionVectors = new Dictionary<string, Vector3>();
         protected Dictionary<string, Transform> finalTransforms = new Dictionary<string, Transform>();
         protected Dictionary<string, Vector3> finalUpVectors = new Dictionary<string, Vector3>();
         protected Dictionary<string, Vector3> finalForwardVectors = new Dictionary<string, Vector3>();
-    
+
         protected Dictionary<string, Vector3> segments = new Dictionary<string, Vector3>();
         protected Dictionary<string, Quaternion> segmentsRotation = new Dictionary<string, Quaternion>();
         protected Dictionary<string, List<string>> segmentMarkers;
-        private Dictionary<string, List<float>> previousData = new Dictionary<string, List<float>>();
-    
+        private Dictionary<string, LinkedList<List<float>>> previousData = new Dictionary<string, LinkedList<List<float>>>();
+        private int previousDataQueueLimit = 3;
+
         private Dictionary<string, Vector3> baseVectors = new Dictionary<string, Vector3>();
     
         //ViconDataStreamSDK_DotNET.Client pHeapClient = new ViconDataStreamSDK.DotNET.Client();
@@ -200,6 +202,12 @@ namespace umanitoba.hcilab.ViconUnityStream
             processedRequest = true;
         }
 
+        private List<string> invalidMarkers = new List<string>();
+        private List<float> k_curr, k_prev;
+        private LinkedList<List<float>> markerQueue;
+        private Vector3 pos, k_vector, t_prev_vector, t_current_vector;
+        private Quaternion rot;
+
         void ProcessData(string inputText)
         {
             rawData = inputText;
@@ -214,28 +222,40 @@ namespace umanitoba.hcilab.ViconUnityStream
 
             foreach (KeyValuePair<string, List<string>> segment in segmentMarkers)
             {
-                Vector3 pos = Vector3.zero;
-                Quaternion rot = Quaternion.identity;
+                pos = Vector3.zero;
+                rot = Quaternion.identity;
                 bool dataValid = true;
+                invalidMarkers.Clear();
 
                 foreach (string marker in segment.Value)
                 {
                     var _data = data.data[marker];
 
-                    // Need to run gap fillling stratergy
+                    /// Need to run gap fillling stratergy
                     if (_data[0] == 0)
                     {
                         if (gapFillingStrategy == GapFillingStrategy.UsePrevious && previousData.ContainsKey(marker))
                         {
-                            _data = previousData[marker];
+                            _data = GetPreviousData(marker);
                         }
-                        // NOTE: Rest of GapFillingStrategy.Ignore handled in ApplyBoneTransform
+                        /// NOTE: Rest of GapFillingStrategy.Ignore handled in ApplyBoneTransform
                         else if(gapFillingStrategy == GapFillingStrategy.Ignore)
                         {
                             dataValid = false;
                             break;
                         }
-                        // GapFillingStrategy.UseRemote, basically means to use the _data as recived. Nothing to do for that case
+                        else if (gapFillingStrategy == GapFillingStrategy.FillRelative)
+                        {
+                            ///makes sense to do this only if thre are more than one markers
+                            if (segment.Value.Count > 1)
+                            {
+                                /// Pushing to the quque so that all markers in the group have the same index;
+                                SetPreviousData(marker, _data);
+                                dataValid = false;
+                                invalidMarkers.Add(marker);
+                            }
+                        }
+                        /// GapFillingStrategy.UseRemote, basically means to use the _data as recived. Nothing to do for that case
                     }
                     else
                     {
@@ -247,25 +267,73 @@ namespace umanitoba.hcilab.ViconUnityStream
                         //         _data[i] = _filter[i].Filter(_data[i]);
                         //     }
                         // }
-                        previousData[marker] = _data;
+                        SetPreviousData(marker, _data);
                     }
 
                     data.data[marker] = _data;
-                    List<float> _pos = data.data[marker];
-                    pos.x += _pos[0];
-                    pos.y += _pos[2];
-                    pos.z += _pos[1];
-                    //break;
-                    if (_pos.Count > 3)
+                }
+
+                if (gapFillingStrategy == GapFillingStrategy.FillRelative && !dataValid)
+                {
+                    /// If all data is invalid or there is no previous data,
+                    /// skip that data from being commited to previousData
+                    if (invalidMarkers.Count == segment.Value.Count || previousData[segment.Value[0]].Count > 1)
                     {
-                        rot.x = _pos[3];
-                        rot.y = _pos[4];
-                        rot.z = _pos[5];
-                        rot.w = _pos[6];
+                        foreach(string marker in segment.Value)
+                        {
+                            previousData[marker].RemoveLast();
+                        }
+                    }
+                    /// We can salvage this data
+                    else
+                    {
+                        /// let k be the point which has data in previous and current frame
+                        /// let t be a point which has data in previous frame but not current
+                        /// t_curr (the estimate) = (t_prev - k_prev) + (k_curr - k_prev) + k_prev
+                        /// t_curr = t_prev + (k_curr - k_prev)
+
+                        /// pick a k
+                        string k_marker = segment.Value.Where(x => !invalidMarkers.Contains(x)).ToArray()[0];
+                        markerQueue = previousData[k_marker];
+                        k_prev = markerQueue.ElementAt(markerQueue.Count - 2);
+                        k_curr = GetPreviousData(k_marker);
+
+                        k_vector = ListToVector(k_curr) - ListToVector(k_prev);
+
+                        foreach (string t_marker in invalidMarkers)
+                        {
+                            markerQueue = previousData[t_marker];
+                            t_prev_vector = ListToVector(markerQueue.ElementAt(markerQueue.Count - 2));
+                            t_current_vector = t_prev_vector + k_vector;
+
+                            /// Set the new value to the previous list
+                            previousData[t_marker].Last.Value[0] = t_current_vector.x;
+                            previousData[t_marker].Last.Value[1] = t_current_vector.y;
+                            previousData[t_marker].Last.Value[2] = t_current_vector.z;
+
+                            /// Set that to the current data object
+                            data.data[t_marker] = GetPreviousData(t_marker);
+                        }
+                        dataValid = true; /// Data is now valid
                     }
                 }
+
                 if (dataValid)
                 {
+                    foreach (string marker in segment.Value)
+                    {
+                        List<float> _pos = data.data[marker];
+                        pos = ListToVector(_pos);
+                        //break;
+                        if (_pos.Count > 3)
+                        {
+                            rot.x = _pos[3];
+                            rot.y = _pos[4];
+                            rot.z = _pos[5];
+                            rot.w = _pos[6];
+                        }
+                    }
+
                     segments[segment.Key] = pos / segment.Value.Count;
                     segmentsRotation[segment.Key] = rot;
                 }
@@ -284,7 +352,37 @@ namespace umanitoba.hcilab.ViconUnityStream
             if (PostTransformCallback != null)
                 PostTransformCallback(finalTransforms);
 
+            CommitPreviousData();
+
             WriteData();
+        }
+
+        private Vector3 ListToVector(IList<float> list)
+        {
+            return new Vector3(list[0], list[1], list[3]);
+        }
+
+        private List<float> GetPreviousData(string marker)
+        {
+            return previousData[marker].Last();
+        }
+
+        /// makses sure the length of the queue is going to be fixed (by previousDataQueueLimit)
+        private void SetPreviousData(string marker, List<float> value)
+        {
+            LinkedList<List<float>> _previousData = previousData[marker];
+            _previousData.AddLast(value);
+        }
+
+        private void CommitPreviousData()
+        {
+            foreach (LinkedList<List<float>> _previousData in previousData.Values)
+            {
+                if (_previousData.Count > previousDataQueueLimit)
+                {
+                    _previousData.RemoveFirst();
+                }
+            }
         }
 
         protected virtual Dictionary<string, Vector3> ProcessSegments(Dictionary<string, Vector3> segments, Data data)
@@ -368,6 +466,7 @@ namespace umanitoba.hcilab.ViconUnityStream
     public enum GapFillingStrategy{
         UseRemote,
         Ignore,
-        UsePrevious
+        UsePrevious,
+        FillRelative
     }
 }
