@@ -169,6 +169,78 @@ namespace umanitoba.hcilab.ViconUnityStream
                 "]]";
         }
 
+        private bool FillWithRelativeAdjacent(string boneName, out Vector3 bonePosition)
+        {
+            bonePosition = Vector3.zero;
+            if (gapFillingStrategy != GapFillingStrategy.FillRelative)
+            {
+                return false;
+            }
+            string childName, parentName;
+            Vector3 childPos, parentPos, childPosPrevious, parentPosPrevious, segmentPosPrevious;
+            segmentChild.TryGetValue(boneName, out childName);
+            segmentParents.TryGetValue(boneName, out parentName);
+
+            if (previousSegments.ContainsKey(boneName))
+            {
+                segmentPosPrevious = previousSegments[boneName];
+                if (segmentPosPrevious == Vector3.zero)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(childName) && segments.ContainsKey(childName) && previousSegments.ContainsKey(childName))
+            {
+                childPos = segments[childName];
+                childPosPrevious = previousSegments[childName];
+                if (childPos == Vector3.zero || childPosPrevious == Vector3.zero)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(parentName) && segments.ContainsKey(parentName) && previousSegments.ContainsKey(parentName))
+            {
+                parentPos = segments[parentName];
+                parentPosPrevious = previousSegments[parentName];
+                if (parentPos == Vector3.zero || parentPosPrevious == Vector3.zero)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+
+            Vector3 segmentToChildVector = (childPos - segmentPosPrevious);
+            Vector3 segmentToParentVector = (parentPos - segmentPosPrevious);
+            float segmentToChildDistance = segmentToChildVector.magnitude;
+            float segmentToParentDistance = segmentToParentVector.magnitude;
+            /// Assuming the plane formed by parent, sgement, child are parallel now and in previous
+            Vector3 planePerpendicularVector = Vector3.Cross(segmentToChildVector, segmentToParentVector);
+
+            Vector3 parentToChildVector = childPos - parentPos;
+            Vector3 projectionOfSegmentFromParent = parentToChildVector * segmentToParentDistance / (segmentToParentDistance + segmentToChildDistance);
+            float projectionToSegmentDistance = (float) System.Math.Sqrt((System.Math.Pow(segmentToParentDistance, 2) - System.Math.Pow(projectionOfSegmentFromParent.magnitude, 2)));
+            Vector3 projectionVector = Vector3.Cross(parentToChildVector, planePerpendicularVector).normalized * projectionToSegmentDistance;
+
+            bonePosition = parentPos + projectionOfSegmentFromParent + projectionVector;
+            segments[boneName] = bonePosition;
+            previousSegments[boneName] = bonePosition;
+
+            return true;
+        }
+
         protected override void ApplyBoneTransform(Transform Bone)
         {
             string BoneName = Bone.gameObject.name;
@@ -178,9 +250,13 @@ namespace umanitoba.hcilab.ViconUnityStream
             //if (segmentChild.ContainsKey(BoneName) && segments.ContainsKey(BoneName))
             {
                 Vector3 BonePosition = segments[BoneName];
+                previousSegments[BoneName] = BonePosition;
 
                 /// Ignore setting pos/rot/scale if GapFillingStrategy.Ignore and BonePosition is zero
-                if (!(gapFillingStrategy == GapFillingStrategy.Ignore || gapFillingStrategy == GapFillingStrategy.FillRelative) || BonePosition != Vector3.zero)
+                /// and cannot resolve with adjacent segments (in FillRelative mode)
+                if (!(gapFillingStrategy == GapFillingStrategy.Ignore || gapFillingStrategy == GapFillingStrategy.FillRelative) ||
+                    BonePosition != Vector3.zero ||
+                    FillWithRelativeAdjacent(BoneName, out BonePosition))
                 {
                     // bool usePreviousSegments = false;
                     // if (BonePosition == Vector3.zero && !noHand)
