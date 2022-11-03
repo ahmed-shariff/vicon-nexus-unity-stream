@@ -108,6 +108,7 @@ namespace umanitoba.hcilab.ViconUnityStream
 
         protected override Dictionary<string, Vector3> ProcessSegments(Dictionary<string, Vector3> segments, Data data)
         {
+            // What sorcery is this?
             palm = segments["Hand"] - (segments["R3D1"] + 0.5f * (segments["R4D1"] - segments["R4D1"]));
             normal = Vector3.Cross(palm, segments["R4D1"] - segments["R3D1"]);
             baseVectors["R1"] = segments[segmentChild["R1D1"]] - segments["R1D1"];
@@ -119,16 +120,31 @@ namespace umanitoba.hcilab.ViconUnityStream
             // Debug.Log(data.data["RTH3P"] + "  -  "+ data.data["RTH3"]);
             var p1 = data.data["RTH3P"];
             var p2 = data.data["RTH3"];
+            Vector3 p1Position = new Vector3(p1[0], p1[2], p1[1]);
+            Vector3 p2Position = new Vector3(p2[0], p2[2], p2[1]);
 
             /// If one of the datapoints is missing, use the previous values, do this by not modifying the baseVectors
             if (p1[0] != 0 || p2[0] != 0)
             {
-                baseVectors["R1_right"] = (new Vector3(p2[0], p2[2], p2[1])) - (new Vector3(p1[0], p1[2], p1[1]));
+                /// Ensure p1 and p2 are not switched, as it can happen when accuracy is low
+                /// PalmBase's Transform.up should be pointing into the palm.
+                /// This is based on the assumption that the RTH3P->RTH3 vector, relative to
+                /// PlamBase.up will be negative (pointing up from palm)
+
+                Vector3 p1p2Vector = p2Position - p1Position;
+                if (Vector3.Dot(p1p2Vector, normal) < 0)
+                {
+                    p1p2Vector = -p1p2Vector;
+                }
+
+                baseVectors["R1_right"] = p1p2Vector;
             }
             // Vector3.Cross(segments["R1D4"] - segments["R1D3"], segments["R1D3"] - segments["R1D2"]);
             // Debug.DrawRay(segments["R3D1"], normal);
             //Debug.Log(normal.magnitude);
             //Debug.Log((normal * 0.01f).magnitude);
+
+            /// Using segments to store the normal vector instead of position?
             segments["PalmBase"] = normal;// *0.01f;
             if (palm == Vector3.zero)
                 noHand = true;
