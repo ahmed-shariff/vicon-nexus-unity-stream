@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace umanitoba.hcilab.ViconUnityStream
@@ -105,17 +106,58 @@ namespace umanitoba.hcilab.ViconUnityStream
         private Dictionary<string, Vector3> baseVectors = new Dictionary<string, Vector3>();
         private Dictionary<string, Vector3> previousSegments = new Dictionary<string, Vector3>();
 
+        private readonly Dictionary<string, List<string>> fingerSegments = new Dictionary<string, List<string>>()
+        {
+            {"R1", new List<string>{"R1D1", "R1D2", "R1D3", "R1D4"}},
+            {"R2", new List<string>{"R2D1", "R2D2", "R2D3", "R2D4"}},
+            {"R3", new List<string>{"R3D1", "R3D2", "R3D3", "R3D4"}},
+            {"R4", new List<string>{"R4D1", "R4D2", "R4D3", "R4D4"}},
+            {"R5", new List<string>{"R5D1", "R5D2", "R5D3", "R5D4"}},
+        };
+
 
         protected override Dictionary<string, Vector3> ProcessSegments(Dictionary<string, Vector3> segments, Data data)
         {
+            /// Filling any gaps that can be filled
+            if (gapFillingStrategy == GapFillingStrategy.FillRelative)
+            {
+                foreach(string segment in segments.Keys.ToList())
+                {
+                    if (segments[segment] == Vector3.zero)
+                    {
+                        segments[segment] = FillWithRelativeAdjacent(segment, segments);
+                    }
+                }
+            }
+
             // What sorcery is this?
             palm = segments["Hand"] - (segments["R3D1"] + 0.5f * (segments["R4D1"] - segments["R4D1"]));
             normal = Vector3.Cross(palm, segments["R4D1"] - segments["R3D1"]);
-            baseVectors["R1"] = segments[segmentChild["R1D1"]] - segments["R1D1"];
-            baseVectors["R2"] = segments[segmentChild["R2D1"]] - segments["R2D1"];
-            baseVectors["R3"] = segments[segmentChild["R3D1"]] - segments["R3D1"];
-            baseVectors["R4"] = segments[segmentChild["R4D1"]] - segments["R4D1"];
-            baseVectors["R5"] = segments[segmentChild["R5D1"]] - segments["R5D1"];
+
+            if (segments[segmentChild["R1D1"]] != Vector3.zero && segments["R1D1"] != Vector3.zero)
+            {
+                baseVectors["R1"] = segments[segmentChild["R1D1"]] - segments["R1D1"];
+            }
+
+            if (segments[segmentChild["R2D1"]] != Vector3.zero && segments["R2D1"] != Vector3.zero)
+            {
+                baseVectors["R2"] = segments[segmentChild["R2D1"]] - segments["R2D1"];
+            }
+
+            if (segments[segmentChild["R3D1"]] != Vector3.zero && segments["R3D1"] != Vector3.zero)
+            {
+                baseVectors["R3"] = segments[segmentChild["R3D1"]] - segments["R3D1"];
+            }
+
+            if (segments[segmentChild["R4D1"]] != Vector3.zero && segments["R4D1"] != Vector3.zero)
+            {
+                baseVectors["R4"] = segments[segmentChild["R4D1"]] - segments["R4D1"];
+            }
+
+            if (segments[segmentChild["R5D1"]] != Vector3.zero && segments["R5D1"] != Vector3.zero)
+            {
+                baseVectors["R5"] = segments[segmentChild["R5D1"]] - segments["R5D1"];
+            }
 
             // Debug.Log(data.data["RTH3P"] + "  -  "+ data.data["RTH3"]);
             var p1 = data.data["RTH3P"];
@@ -169,14 +211,26 @@ namespace umanitoba.hcilab.ViconUnityStream
                 "]]";
         }
 
-        private bool FillWithRelativeAdjacent(string boneName, out Vector3 bonePosition)
+        private Vector3 FillWithRelativeAdjacent(string boneName, Dictionary<string, Vector3> _segments)
         {
-            bonePosition = Vector3.zero;
             if (gapFillingStrategy != GapFillingStrategy.FillRelative)
             {
-                return false;
+                return Vector3.zero;
             }
-            string childName, parentName;
+
+            string fingerId = boneName.Substring(0, 2);
+            // List<string> thisFingerSegments;
+            // if (fingerSegments.ContainsKey(fingerId))
+            // {
+            //     thisFingerSegments = fingerSegments[fingerId];
+            // }
+            // else
+            // {
+            //     return Vector3.zero;
+            // }
+            // string thirdWheelName;
+
+            string childName, parentName; // Thisrd wheel being the other segment of the 4 segments in the finger
             Vector3 childPos, parentPos, childPosPrevious, parentPosPrevious, segmentPosPrevious;
             segmentChild.TryGetValue(boneName, out childName);
             segmentParents.TryGetValue(boneName, out parentName);
@@ -186,59 +240,76 @@ namespace umanitoba.hcilab.ViconUnityStream
                 segmentPosPrevious = previousSegments[boneName];
                 if (segmentPosPrevious == Vector3.zero)
                 {
-                    return false;
+                    return Vector3.zero;
                 }
             }
             else
             {
-                return false;
+                return Vector3.zero;
             }
 
-            if (!string.IsNullOrEmpty(childName) && segments.ContainsKey(childName) && previousSegments.ContainsKey(childName))
+            if (!string.IsNullOrEmpty(childName) && _segments.ContainsKey(childName) && previousSegments.ContainsKey(childName))
             {
-                childPos = segments[childName];
+                childPos = _segments[childName];
                 childPosPrevious = previousSegments[childName];
                 if (childPos == Vector3.zero || childPosPrevious == Vector3.zero)
                 {
-                    return false;
+                    return Vector3.zero;
                 }
             }
             else
             {
-                return false;
+                return Vector3.zero;
             }
 
-            if (!string.IsNullOrEmpty(parentName) && segments.ContainsKey(parentName) && previousSegments.ContainsKey(parentName))
+            if (!string.IsNullOrEmpty(parentName) && _segments.ContainsKey(parentName) && previousSegments.ContainsKey(parentName))
             {
-                parentPos = segments[parentName];
+                parentPos = _segments[parentName];
                 parentPosPrevious = previousSegments[parentName];
                 if (parentPos == Vector3.zero || parentPosPrevious == Vector3.zero)
                 {
-                    return false;
+                    return Vector3.zero;
                 }
             }
             else
             {
-                return false;
+                return Vector3.zero;
             }
 
+            // /// get thirdWheelName
+            // thirdWheelName = thisFingerSegments.Where(x => x != boneName && x != parentName && x != childName).First();
+
+            /// Do the actual math
             Vector3 segmentToChildVector = (childPos - segmentPosPrevious);
             Vector3 segmentToParentVector = (parentPos - segmentPosPrevious);
             float segmentToChildDistance = segmentToChildVector.magnitude;
             float segmentToParentDistance = segmentToParentVector.magnitude;
-            /// Assuming the plane formed by parent, sgement, child are parallel now and in previous
-            Vector3 planePerpendicularVector = Vector3.Cross(segmentToChildVector, segmentToParentVector);
+
+            Vector3 planePerpendicularVector;
+            // if (!string.IsNullOrEmpty(thirdWheelName) && _segments.ContainsKey(thirdWheelName) && _segments[thirdWheelName] != Vector3.zero)
+            // {
+            //     List<Vector3> vectors = thisFingerSegments.Select(x => _segments[x]).Where(x => x != Vector3.zero).ToList();
+            //     if (vectors.Count != 3) // this should never happen at this point. if it does, something is going wrong.
+            //     {
+            //         Debug.LogWarning($"{thirdWheelName}  ummm... ??" + string.Join(", ", thisFingerSegments.Where(x => _segments[x] != Vector3.zero)));
+            //         return Vector3.zero;
+            //     }
+            //     planePerpendicularVector = Vector3.Cross(vectors[0] - vectors[1], vectors[2] - vectors[1]);
+            // }
+            // /// Assuming the plane formed by parent, sgement, child are parallel now and in previous
+            // else
+            // {
+            //     planePerpendicularVector = Vector3.Cross(segmentToChildVector, segmentToParentVector);
+            // }
+
+            planePerpendicularVector = Vector3.Cross(segmentToChildVector, segmentToParentVector);
 
             Vector3 parentToChildVector = childPos - parentPos;
             Vector3 projectionOfSegmentFromParent = parentToChildVector * segmentToParentDistance / (segmentToParentDistance + segmentToChildDistance);
             float projectionToSegmentDistance = (float) System.Math.Sqrt((System.Math.Pow(segmentToParentDistance, 2) - System.Math.Pow(projectionOfSegmentFromParent.magnitude, 2)));
             Vector3 projectionVector = Vector3.Cross(parentToChildVector, planePerpendicularVector).normalized * projectionToSegmentDistance;
 
-            bonePosition = parentPos + projectionOfSegmentFromParent + projectionVector;
-            segments[boneName] = bonePosition;
-            previousSegments[boneName] = bonePosition;
-
-            return true;
+            return parentPos + projectionOfSegmentFromParent + projectionVector;
         }
 
         protected override void ApplyBoneTransform(Transform Bone)
@@ -250,13 +321,10 @@ namespace umanitoba.hcilab.ViconUnityStream
             //if (segmentChild.ContainsKey(BoneName) && segments.ContainsKey(BoneName))
             {
                 Vector3 BonePosition = segments[BoneName];
-                previousSegments[BoneName] = BonePosition;
 
                 /// Ignore setting pos/rot/scale if GapFillingStrategy.Ignore and BonePosition is zero
                 /// and cannot resolve with adjacent segments (in FillRelative mode)
-                if (!(gapFillingStrategy == GapFillingStrategy.Ignore || gapFillingStrategy == GapFillingStrategy.FillRelative) ||
-                    BonePosition != Vector3.zero ||
-                    FillWithRelativeAdjacent(BoneName, out BonePosition))
+                if (!(gapFillingStrategy == GapFillingStrategy.Ignore || gapFillingStrategy == GapFillingStrategy.FillRelative) || BonePosition != Vector3.zero)
                 {
                     // bool usePreviousSegments = false;
                     // if (BonePosition == Vector3.zero && !noHand)
@@ -303,9 +371,12 @@ namespace umanitoba.hcilab.ViconUnityStream
                         {
                             if (segmentChild.ContainsKey(BoneName))
                             {
-                                if (baseVectors.ContainsKey(fingerId))
+                                Vector3 childSegment = segments[segmentChild[BoneName]];
+
+                                /// Avoid setting rotation if childsegment is zero
+                                if (childSegment != Vector3.zero && baseVectors.ContainsKey(fingerId))
                                 {
-                                    Vector3 upDirection = segments[segmentChild[BoneName]] - BonePosition;
+                                    Vector3 upDirection = childSegment - BonePosition;
                                     if (upDirection != Vector3.zero)
                                     {
                                         Vector3 right;
@@ -346,6 +417,7 @@ namespace umanitoba.hcilab.ViconUnityStream
                         }
                     }
                 }
+                previousSegments[BoneName] = BonePosition;
             }
             AddBoneDataToWriter(Bone);
             if (Bone.name == "Hand")
