@@ -100,6 +100,8 @@ namespace umanitoba.hcilab.ViconUnityStream
                 {    "R5D3", new List<string>(){"RPF2"}},
                 {    "R5D4", new List<string>(){"RPF3"}}
             };
+
+            SetupMessagePack();
             SetupWriter();
             SetupFilter();
         }

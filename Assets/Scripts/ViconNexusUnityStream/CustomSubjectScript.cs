@@ -8,6 +8,8 @@ using System;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
+using MessagePack;
+using MessagePack.Resolvers;
 
 namespace umanitoba.hcilab.ViconUnityStream
 {
@@ -19,6 +21,8 @@ namespace umanitoba.hcilab.ViconUnityStream
         public bool useDefaultData = false;
         public string URI = "http://127.0.0.1:5000/marker/test";
         public string defaultData = "{\"data\": {\"RWRB\": [-543.6625324688598, 207.2696870612411, 298.7514053730324], \"RFA2\": [-532.0721277646578, 220.17137432871033, 301.01629761935317], \"RFA1\": [-520.1440660572242, 201.39104705712728, 339.41934514555805], \"RWRA\": [-532.6974300716365, 189.02367806197196, 337.42141847242124], \"RH1\": [-560.7345454383594, 159.62419546128493, 330.3774691418835], \"RH3\": [-590.0032621097643, 131.76129785698242, 299.0094709326491], \"RH6\": [-562.2275968721467, 178.22968321613172, 289.7780921183954], \"RTH1\": [-521.0776063001258, 156.02975240617602, 339.52347728151585], \"RTH2\": [-533.1608764185024, 125.93223864863384, 346.6751934035616], \"RTH3\": [-544.0308683261262, 94.88325770113741, 340.18541871909747], \"RTH3P\": [-558.2383999037787, 98.54284010368167, 344.30830190364924], \"RTH4\": [-565.5234537423078, 83.35392844673802, 323.32104505694093], \"RH2\": [-585.6043517556936, 120.51194616610833, 321.788774764582], \"RIF1\": [-576.5885643353779, 78.82999103456628, 300.3582074396528], \"RIF2\": [-561.2383839807005, 59.365051118922004, 295.3749509588552], \"RIF3\": [-541.7682180796493, 45.73872562944883, 292.4172960222232], \"RTF1\": [-572.5416262201588, 87.20318096871338, 285.1907380694027], \"RTF2\": [-562.4119589663006, 62.738780575654275, 271.7188525984546], \"RTF3\": [-557.640123472733, 48.67593410004015, 265.6647298151231], \"RH4\": [-584.7190340388772, 139.86043222122856, 281.7731182084455], \"RRF1\": [-585.3695333810368, 117.21631146711684, 275.4715366418419], \"RRF2\": [-587.3318441581403, 98.12953148435754, 262.2992975340355], \"RRF3\": [-588.7462283921602, 71.40473234827627, 248.39760510410048], \"RRF4\": [-587.6055606791075, 56.662726798838854, 241.1235659054331], \"RH5\": [-576.2821771931049, 149.15875547966468, 267.5793086555055], \"RPF1\": [-587.1382537041475, 129.22951405026535, 250.65671596147286], \"RPF2\": [-593.5975138169013, 115.06673347598871, 237.79061600397645], \"RPF3\": [-598.0083756011302, 98.17580941339943, 225.52275793399647]}, \"hierachy\": {\"Arm\": [\"RWRB\", \"RFA2\", \"RFA1\", \"RWRA\"], \"Hand\": [\"RH1\", \"RH3\", \"RH6\"], \"R1D1\": [\"RTH1\"], \"R1D2\": [\"RTH2\"], \"R1D3\": [\"RTH3\", \"RTH3P\", \"RTH4\"], \"R2D1\": [\"RH2\"], \"R2D2\": [\"RIF1\"], \"R2D3\": [\"RIF2\", \"RIF3\"], \"R3D2\": [\"RTF1\"], \"R3D3\": [\"RTF2\", \"RTF3\"], \"R4D1\": [\"RH4\", \"RRF1\"], \"R4D2\": [\"RRF2\"], \"R4D3\": [\"RRF3\", \"RRF4\"], \"R5D1\": [\"RH5\"], \"R5D2\": [\"RPF1\"], \"R5D3\": [\"RPF2\", \"RPF3\"]}, \"sensorTriggered\": true}";
+        private Data defaultDataObj;
+        private byte[] defaultDataBytes;
         public bool enableWriteData = true;
         private bool processedRequest = true;
         private static readonly HttpClient client = new HttpClient();
@@ -51,13 +55,14 @@ namespace umanitoba.hcilab.ViconUnityStream
         public bool expectSensorChange { get; set; }
         public bool processFrameFlag { get; set; }
 
-        Data data;
         string filePath;
         StreamWriter inputWriter;
         StreamWriter finalWriter;
         StreamWriter rawWriter;
 
         string rawData;
+
+        MessagePackSerializerOptions messagePackOptions;
 
         protected Dictionary<string, Vector3> finalPositionVectors = new Dictionary<string, Vector3>();
         protected Dictionary<string, Transform> finalTransforms = new Dictionary<string, Transform>();
@@ -81,8 +86,17 @@ namespace umanitoba.hcilab.ViconUnityStream
                 { "base3", new List<string>() { "base3"}},
                 { "base4", new List<string>() { "base4"}}
             };
+
+            SetupMessagePack();
             SetupWriter();
             SetupFilter();
+        }
+
+        protected void SetupMessagePack()
+        {
+            defaultDataObj = JsonConvert.DeserializeObject<Data>(defaultData);
+            defaultDataBytes = MessagePackSerializer.Serialize(defaultDataObj);
+            messagePackOptions = MessagePackSerializerOptions.Standard.WithResolver(StandardResolver.Instance);
         }
 
         protected void SetupWriter()
@@ -152,7 +166,7 @@ namespace umanitoba.hcilab.ViconUnityStream
                 processedRequest = false;
                 if (useDefaultData)
                 {
-                    ProcessData(defaultData);
+                    ProcessData(defaultDataBytes);
                     processedRequest = true;
                     processFrameFlag = true;
                 }
@@ -182,7 +196,7 @@ namespace umanitoba.hcilab.ViconUnityStream
                     // Debug.Log(data.sensorTriggered.ToString());
 
                     try{
-                        ProcessData(webRequest.downloadHandler.text);
+                        ProcessData(webRequest.downloadHandler.data);
                     } catch(Exception err){
                         Debug.Log("Exception: " + err.ToString());
                         Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
@@ -193,14 +207,14 @@ namespace umanitoba.hcilab.ViconUnityStream
             }
         }
 
-        async void GetRequestHttpClient(string uri)
-        {
+        // async void GetRequestHttpClient(string uri)
+        // {
 	
-            string content = await client.GetStringAsync(uri);
-            Debug.Log(uri + "\nReceived: " + content);
-            ProcessData(content);
-            processedRequest = true;
-        }
+        //     string content = await client.GetStringAsync(uri);
+        //     Debug.Log(uri + "\nReceived: " + content);
+        //     ProcessData(content);
+        //     processedRequest = true;
+        // }
 
         private List<string> invalidMarkers = new List<string>();
         private List<float> k_curr, k_prev;
@@ -208,10 +222,11 @@ namespace umanitoba.hcilab.ViconUnityStream
         private Vector3 pos, k_vector, t_prev_vector, t_current_vector;
         private Quaternion rot;
 
-        void ProcessData(string inputText)
+        void ProcessData(byte[] inputText)
         {
-            rawData = inputText;
-            Data data = JsonConvert.DeserializeObject<Data>(inputText);
+            // rawData = inputText;
+            // Data data = JsonConvert.DeserializeObject<Data>(inputText);
+            Data data = MessagePackSerializer.Deserialize<Data>(inputText);
             sensorTriggered = data.sensorTriggered;
 	
             if (outputText)
@@ -450,13 +465,6 @@ namespace umanitoba.hcilab.ViconUnityStream
             // finalPositionQuaternion[Bone.name] = Bone.rotation;
             finalUpVectors[Bone.name] = Bone.up;
             finalForwardVectors[Bone.name] = Bone.forward;
-        }
-
-        protected class Data
-        {
-            public Dictionary<string, List<float>> data;
-            public Dictionary<string, List<string>> hierachy;
-            public bool sensorTriggered;
         }
 
         void OnDestroy()
