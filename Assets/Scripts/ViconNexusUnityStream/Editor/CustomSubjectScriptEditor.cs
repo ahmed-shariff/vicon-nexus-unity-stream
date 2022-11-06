@@ -41,7 +41,6 @@ namespace umanitoba.hcilab.ViconUnityStream.Editor
             CustomSubjectConfig.instance.enableWriteData = EditorGUILayout.Toggle("Write data to file", CustomSubjectConfig.instance.enableWriteData);
             if (EditorGUI.EndChangeCheck())
             {
-                EditorUtility.SetDirty(target);
                 CustomSubjectConfig.instance.Save();
                 foreach (CustomSubjectScript script in subjectScripts)
                 {
@@ -49,7 +48,7 @@ namespace umanitoba.hcilab.ViconUnityStream.Editor
                     script.useJson = CustomSubjectConfig.instance.useJson;
                     script.enableWriteData = CustomSubjectConfig.instance.enableWriteData;
                     script.URI = CustomSubjectConfig.instance.baseURI + script.subjectName;
-                    Debug.Log($"{script.URI}");
+                    EditorUtility.SetDirty(script);
                 }
                 Debug.Log($"Setting URI: {customSubjectScript.URI};    Using default data: {customSubjectScript.useDefaultData};     Using json: {customSubjectScript.useJson};    Writing data: {customSubjectScript.enableWriteData};    Scripts updated: \n" + string.Join(",\n", subjectScripts));
             }
