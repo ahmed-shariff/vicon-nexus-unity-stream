@@ -58,7 +58,8 @@ namespace umanitoba.hcilab.ViconUnityStream
         public bool expectSensorChange { get; set; }
         public bool processFrameFlag { get; set; }
 
-        string filePath;
+        public List<string> filePaths { get; protected set; }
+
         StreamWriter inputWriter;
         StreamWriter finalWriter;
         StreamWriter rawWriter;
@@ -106,16 +107,24 @@ namespace umanitoba.hcilab.ViconUnityStream
         {
             if (!enableWriteData)
                 return;
+
+            filePaths = new List<string>();
+
+            string filePath;
+
             filePath = GetPath("input"); 
             inputWriter = new StreamWriter(filePath, true);
+            filePaths.Add(filePath);
             Debug.Log("Writing to:  " + filePath);
 
             filePath = GetPath("final"); 
             finalWriter = new StreamWriter(filePath, true);
+            filePaths.Add(filePath);
             Debug.Log("Writing to:  " + filePath);
 
             filePath = GetPath("raw"); 
             rawWriter = new StreamWriter(filePath, true);
+            filePaths.Add(filePath);
             Debug.Log("Writing to:  " + filePath);
         }
 
@@ -482,7 +491,7 @@ namespace umanitoba.hcilab.ViconUnityStream
         {
             if (enableWriteData)
             {
-                Debug.Log("Closing file: " + filePath);
+                Debug.Log("Closing files: \n    " + string.Join("\n    ", filePaths));
                 if (inputWriter != null)
                     inputWriter.Close();
                 if (finalWriter != null)
