@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using UnityEngine.Events;
 using System.Net.Http;
 using System;
 using System.IO;
@@ -37,6 +38,11 @@ namespace umanitoba.hcilab.ViconUnityStream
 
         [SerializeField]
         protected GapFillingStrategy gapFillingStrategy = GapFillingStrategy.UseRemote;
+
+        public int dataQualityThreshold = 5; // If below this number of markers, stop processing and hide everything
+        public UnityEvent OnHidingSubject;
+        public UnityEvent OnShowingSubject;
+        private bool subjectHidden = false;
 
         bool _sensorTriggered;
         public bool sensorTriggered
@@ -255,6 +261,8 @@ namespace umanitoba.hcilab.ViconUnityStream
                 outputText.color = data.sensorTriggered ? Color.red: Color.blue;
             }
 
+            int zeroMarkers = 0;
+
             foreach (KeyValuePair<string, List<string>> segment in segmentMarkers)
             {
                 pos = Vector3.zero;
@@ -378,17 +386,44 @@ namespace umanitoba.hcilab.ViconUnityStream
                     segments[segment.Key] = Vector3.zero;
                     segmentsRotation[segment.Key] = Quaternion.identity;
                 }
+
+                /// Test the data quality
+                if(segments[segment.Key] == Vector3.zero)
+                {
+                    zeroMarkers += 1;
+                }
+
+                if(zeroMarkers > dataQualityThreshold)
+                {
+                    HideSubject();
+                    break;
+                }
             }
+
             segments = ProcessSegments(segments, data);
-            // inputWriter.WriteLine(SceneProperties.currentTicks + ", " + "{" + string.Join(",", segments) + "}");
-            // inputWriter.Flush();
-            transform.root.position = segments[rootSegment] *scale_1;
-            FindAndTransform(transform.root, rootSegment);
 
-            if (PostTransformCallback != null)
-                PostTransformCallback(finalTransforms);
+            ///Retest the data quality
+            if(TestSegmentsQulity(segments))
+            {
+                ShowSubject();
+            }
+            else
+            {
+                HideSubject();
+            }
 
-            CommitPreviousData();
+            if(!subjectHidden)
+            {
+                // inputWriter.WriteLine(SceneProperties.currentTicks + ", " + "{" + string.Join(",", segments) + "}");
+                // inputWriter.Flush();
+                transform.root.position = segments[rootSegment] * scale_1;
+                FindAndTransform(transform.root, rootSegment);
+
+                if (PostTransformCallback != null)
+                    PostTransformCallback(finalTransforms);
+
+                CommitPreviousData();
+            }
 
             WriteData();
         }
@@ -485,6 +520,32 @@ namespace umanitoba.hcilab.ViconUnityStream
             // finalPositionQuaternion[Bone.name] = Bone.rotation;
             finalUpVectors[Bone.name] = Bone.up;
             finalForwardVectors[Bone.name] = Bone.forward;
+        }
+
+        protected void HideSubject()
+        {
+            if (!subjectHidden)
+            {
+                OnHidingSubject.Invoke();
+                subjectHidden = true;
+            }
+        }
+
+        protected void ShowSubject()
+        {
+            if(subjectHidden)
+            {
+                OnShowingSubject.Invoke();
+                subjectHidden = false;
+            }
+        }
+
+        /// <summary>
+        /// Returns true if the `segments` are good to be applied to transforms
+        /// </summary>
+        protected virtual bool TestSegmentsQulity(Dictionary<string, Vector3> segments)
+        {
+            return true;
         }
 
         void OnDestroy()
