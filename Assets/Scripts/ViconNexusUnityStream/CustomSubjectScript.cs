@@ -528,6 +528,12 @@ namespace umanitoba.hcilab.ViconUnityStream
             {
                 OnHidingSubject.Invoke();
                 subjectHidden = true;
+
+                int ChildCount = transform.childCount;
+                for (int i = 0; i < ChildCount; ++i)
+                {
+                    transform.GetChild(i).gameObject.SetActive(false);
+                }
             }
         }
 
@@ -537,6 +543,12 @@ namespace umanitoba.hcilab.ViconUnityStream
             {
                 OnShowingSubject.Invoke();
                 subjectHidden = false;
+
+                int ChildCount = transform.childCount;
+                for (int i = 0; i < ChildCount; ++i)
+                {
+                    transform.GetChild(i).gameObject.SetActive(true);
+                }
             }
         }
 

@@ -425,5 +425,18 @@ namespace umanitoba.hcilab.ViconUnityStream
             if (Bone.name == "Hand")
                 handWorldToLocalMatrix = Bone.worldToLocalMatrix;
         }
+
+        protected override bool TestSegmentsQulity(Dictionary<string, Vector3> segments)
+        {
+            float d3_d1_dot = Vector3.Dot(segments["R5D3"] - segments["R2D3"], segments["R5D1"] - segments["R2D1"]);
+            if (d3_d1_dot > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }
