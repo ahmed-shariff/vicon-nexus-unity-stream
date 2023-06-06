@@ -1,5 +1,5 @@
 {
-    "name": "ubc.ok.hcilab.vicon-nexus-unity-stream",
+    "name": "ubc.ok.ovilab.vicon-nexus-unity-stream",
     "version": "0.1.0",
     "displayName": "ViconNexusUnityStream",
     "description": "Stream data through vicon-nexux-unity-stream-py (https://github.com/ahmed-shariff/vicon-nexus-unity-stream-py)",
