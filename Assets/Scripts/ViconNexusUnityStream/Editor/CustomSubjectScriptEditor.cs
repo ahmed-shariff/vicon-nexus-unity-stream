@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace umanitoba.hcilab.ViconUnityStream.Editor
+namespace ubc.ok.ovilab.ViconUnityStream.Editor
 {
     [CustomEditor(typeof(CustomSubjectScript), true)]
     [CanEditMultipleObjects]

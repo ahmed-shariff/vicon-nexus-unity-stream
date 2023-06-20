@@ -2,7 +2,7 @@
 using UnityEngine;
 using System.Linq;
 
-namespace umanitoba.hcilab.ViconUnityStream
+namespace ubc.ok.ovilab.ViconUnityStream
 {
     public class CustomHWDScript : CustomSubjectScript
     {
