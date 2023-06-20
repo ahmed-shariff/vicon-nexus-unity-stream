@@ -12,93 +12,208 @@ namespace ubc.ok.ovilab.ViconUnityStream
         private Vector3 normal;
         private Vector3 palm;
         private bool noHand = false;
+        [SerializeField]
+        public Handedness handedness = Handedness.Right;
+
+        // NOTE: Considered using an enum with a dictionary, but that
+        // means using a dictionary lookup everytime a name is needed,
+        // so doing it the ugly (or not?) way
+        private string segment_Arm = "Arm";
+        private string segment_Hand = "Hand";
+        private string segment_1D1 = "1D1";
+        private string segment_1D2 = "1D2";
+        private string segment_1D3 = "1D3";
+        private string segment_1D4 = "1D4";
+        private string segment_2D1 = "2D1";
+        private string segment_2D2 = "2D2";
+        private string segment_2D3 = "2D3";
+        private string segment_2D4 = "2D4";
+        private string segment_3D1 = "3D1";
+        private string segment_3D2 = "3D2";
+        private string segment_3D3 = "3D3";
+        private string segment_3D4 = "3D4";
+        private string segment_4D1 = "4D1";
+        private string segment_4D2 = "4D2";
+        private string segment_4D3 = "4D3";
+        private string segment_4D4 = "4D4";
+        private string segment_5D1 = "5D1";
+        private string segment_5D2 = "5D2";
+        private string segment_5D3 = "5D3";
+        private string segment_5D4 = "5D4";
+
+        // Hand and arm markers
+        private string marker_FA2 = "FA2";
+        private string marker_FA1 = "FA1";
+        private string marker_WRA = "WRA";
+        private string marker_WRB = "WRB";
     
+        // thumb markers
+        private string marker_TH1 = "TH1";
+        private string marker_TH2 = "TH2";
+        private string marker_TH3 = "TH3";
+        private string marker_TH3P = "TH3P";
+        private string marker_TH4 = "TH4";
 
-        Dictionary<string, string> segmentChild = new Dictionary<string, string>()
-        {
-            //{"Arm", null},
-            {"Arm", "Hand"},
-            {"Hand", "R3D1"},
+        // index finger markers
+        private string marker_H2 = "H2";
+        private string marker_IF1 = "IF1";
+        private string marker_IF2 = "IF2";
+        private string marker_IF3 = "IF3";
 
-            {"R1D1", "R1D2"},
-            {"R1D2", "R1D3"},
-            {"R1D3", "R1D4"},
-        
-            {"R2D1", "R2D2"},
-            {"R2D2", "R2D3"},
-            {"R2D3", "R2D4"},
-        
-            {"R3D1", "R3D2"},
-            {"R3D2", "R3D3"},
-            {"R3D3", "R3D4"},
-        
-            {"R4D1", "R4D2"},
-            {"R4D2", "R4D3"},
-            {"R4D3", "R4D4"},
+        // middle finger markers
+        private string marker_H3 = "H3";
+        private string marker_TF1 = "TF1";
+        private string marker_TF2 = "TF2";
+        private string marker_TF3 = "TF3";
 
-            {"R5D1", "R5D2"},
-            {"R5D2", "R5D3"},
-            {"R5D3", "R5D4"},
-        };
+        // ring finger markers
+        private string marker_H4 = "H4";
+        private string marker_RF2 = "RF2";
+        private string marker_RF3 = "RF3";
+        private string marker_RF4 = "RF4";
 
-        Dictionary<string, string> segmentParents = new Dictionary<string, string>()
-        {
-            //{"Arm", null},
-            {"Hand", "Arm"},
-            //{"R1D1", "Hand"},
-            //{"R2D1", "Hand"},
-            {"R3D1", "Hand"},
-            //{"R4D1", "Hand"},
-            //{"R5D1", "Hand"},
+        // pinky finger markers
+        private string marker_H5 = "H5";
+        private string marker_PF1 = "PF1";
+        private string marker_PF2 = "PF2";
+        private string marker_PF3 = "PF3";
 
-            {"R1D2", "R1D1"},
-            {"R2D2", "R2D1"},
-            {"R3D2", "R3D1"},
-            {"R4D2", "R4D1"},
-            {"R5D2", "R5D1"},
-        
-            {"R1D3", "R1D2"},
-            {"R2D3", "R2D2"},
-            {"R3D3", "R3D2"},
-            {"R4D3", "R4D2"},
-            {"R5D3", "R5D2"},
-        
-            {"R1D4", "R1D3"},
-            {"R2D4", "R2D3"},
-            {"R3D4", "R3D3"},
-            {"R4D4", "R4D3"},
-            {"R5D4", "R5D3"},
-        };
+        Dictionary<string, string> segmentChild;
+        Dictionary<string, string> segmentParents;
 
         void Start()
         {
-            segmentMarkers = new Dictionary<string, List<string>>() {
-                { "Arm", new List<string>() {"RFA2", "RFA1"}} ,//{ "RWRB", "RFA2", "RFA1", "RWRA" } } ,
-                {    "Hand", new List<string>() { "RWRB", "RWRA" }} ,//{"RH1", "RH3", "RH6"}}, 
-                {    "R1D1",  new List<string>(){"RTH1"}},
-                {    "R1D2", new List<string>(){"RTH2"}},
-                {    "R1D3", new List<string>(){"RTH3", "RTH3P"}},
-                {    "R1D4", new List<string>{"RTH4"}},
+            string prefix = handedness == Handedness.Right ? "R": "L";
 
-                {    "R2D1", new List<string>{"RH2"}},
-                {    "R2D2", new List<string>{"RIF1"}}, 
-                {    "R2D3", new List<string>{"RIF2"}},
-                {    "R2D4", new List<string>{"RIF3"}}, 
+            segment_1D1 = prefix + segment_1D1;
+            segment_1D2 = prefix + segment_1D2;
+            segment_1D3 = prefix + segment_1D3;
+            segment_1D4 = prefix + segment_1D4;
+            segment_2D1 = prefix + segment_2D1;
+            segment_2D2 = prefix + segment_2D2;
+            segment_2D3 = prefix + segment_2D3;
+            segment_2D4 = prefix + segment_2D4;
+            segment_3D1 = prefix + segment_3D1;
+            segment_3D2 = prefix + segment_3D2;
+            segment_3D3 = prefix + segment_3D3;
+            segment_3D4 = prefix + segment_3D4;
+            segment_4D1 = prefix + segment_4D1;
+            segment_4D2 = prefix + segment_4D2;
+            segment_4D3 = prefix + segment_4D3;
+            segment_4D4 = prefix + segment_4D4;
+            segment_5D1 = prefix + segment_5D1;
+            segment_5D2 = prefix + segment_5D2;
+            segment_5D3 = prefix + segment_5D3;
+            segment_5D4 = prefix + segment_5D4;
+            marker_FA2 = prefix + marker_FA2;
+            marker_FA1 = prefix + marker_FA1;
+            marker_WRA = prefix + marker_WRA;
+            marker_WRB = prefix + marker_WRB;
+            marker_TH1 = prefix + marker_TH1;
+            marker_TH2 = prefix + marker_TH2;
+            marker_TH3 = prefix + marker_TH3;
+            marker_TH3P = prefix + marker_TH3P;
+            marker_TH4 = prefix + marker_TH4;
+            marker_H2 = prefix + marker_H2;
+            marker_IF1 = prefix + marker_IF1;
+            marker_IF2 = prefix + marker_IF2;
+            marker_IF3 = prefix + marker_IF3;
+            marker_H3 = prefix + marker_H3;
+            marker_TF1 = prefix + marker_TF1;
+            marker_TF2 = prefix + marker_TF2;
+            marker_TF3 = prefix + marker_TF3;
+            marker_H4 = prefix + marker_H4;
+            marker_RF2 = prefix + marker_RF2;
+            marker_RF3 = prefix + marker_RF3;
+            marker_RF4 = prefix + marker_RF4;
+            marker_H5 = prefix + marker_H5;
+            marker_PF1 = prefix + marker_PF1;
+            marker_PF2 = prefix + marker_PF2;
+            marker_PF3 = prefix + marker_PF3;
+
+            segmentChild = new Dictionary<string, string>()
+            {
+                //{segment_Arm, null},
+                {segment_Arm, segment_Hand},
+                {segment_Hand, segment_3D1},
+
+                {segment_1D1, segment_1D2},
+                {segment_1D2, segment_1D3},
+                {segment_1D3, segment_1D4},
         
-                {    "R3D1", new List<string>{"RH3"}},
-                {    "R3D2", new List<string>{"RTF1"}},
-                {    "R3D3", new List<string>{"RTF2"}},
-                {    "R3D4", new List<string>{"RTF3"}},
+                {segment_2D1, segment_2D2},
+                {segment_2D2, segment_2D3},
+                {segment_2D3, segment_2D4},
         
-                {    "R4D1", new List<string>{"RH4"}},
-                {    "R4D2", new List<string>{"RRF2"}},
-                {    "R4D3", new List<string>{"RRF3"}},
-                {    "R4D4", new List<string>{"RRF4"}},
+                {segment_3D1, segment_3D2},
+                {segment_3D2, segment_3D3},
+                {segment_3D3, segment_3D4},
         
-                {   "R5D1", new List<string>(){"RH5"}}, 
-                {    "R5D2",  new List<string>(){"RPF1"}}, 
-                {    "R5D3", new List<string>(){"RPF2"}},
-                {    "R5D4", new List<string>(){"RPF3"}}
+                {segment_4D1, segment_4D2},
+                {segment_4D2, segment_4D3},
+                {segment_4D3, segment_4D4},
+
+                {segment_5D1, segment_5D2},
+                {segment_5D2, segment_5D3},
+                {segment_5D3, segment_5D4},
+            };
+
+            segmentParents = new Dictionary<string, string>()
+            {
+                //{segment_Arm, null},
+                {segment_Hand, segment_Arm},
+                //{segment_1D1, segment_Hand},
+                //{segment_2D1, segment_Hand},
+                {segment_3D1, segment_Hand},
+                //{segment_4D1, segment_Hand},
+                //{segment_5D1, segment_Hand},
+
+                {segment_1D2, segment_1D1},
+                {segment_2D2, segment_2D1},
+                {segment_3D2, segment_3D1},
+                {segment_4D2, segment_4D1},
+                {segment_5D2, segment_5D1},
+        
+                {segment_1D3, segment_1D2},
+                {segment_2D3, segment_2D2},
+                {segment_3D3, segment_3D2},
+                {segment_4D3, segment_4D2},
+                {segment_5D3, segment_5D2},
+        
+                {segment_1D4, segment_1D3},
+                {segment_2D4, segment_2D3},
+                {segment_3D4, segment_3D3},
+                {segment_4D4, segment_4D3},
+                {segment_5D4, segment_5D3},
+            };
+
+            segmentMarkers = new Dictionary<string, List<string>>() {
+                { segment_Arm, new List<string>() {marker_FA2, marker_FA1}} ,//{ marker_WRB, marker_FA2, marker_FA1, marker_WRA } } ,
+                {    segment_Hand, new List<string>() { marker_WRB, marker_WRA }} ,//{"RH1", marker_H3, "RH6"}}, 
+                {    segment_1D1,  new List<string>(){marker_TH1}},
+                {    segment_1D2, new List<string>(){marker_TH2}},
+                {    segment_1D3, new List<string>(){marker_TH3, marker_TH3P}},
+                {    segment_1D4, new List<string>{marker_TH4}},
+
+                {    segment_2D1, new List<string>{marker_H2}},
+                {    segment_2D2, new List<string>{marker_IF1}}, 
+                {    segment_2D3, new List<string>{marker_IF2}},
+                {    segment_2D4, new List<string>{marker_IF3}}, 
+        
+                {    segment_3D1, new List<string>{marker_H3}},
+                {    segment_3D2, new List<string>{marker_TF1}},
+                {    segment_3D3, new List<string>{marker_TF2}},
+                {    segment_3D4, new List<string>{marker_TF3}},
+        
+                {    segment_4D1, new List<string>{marker_H4}},
+                {    segment_4D2, new List<string>{marker_RF2}},
+                {    segment_4D3, new List<string>{marker_RF3}},
+                {    segment_4D4, new List<string>{marker_RF4}},
+        
+                {   segment_5D1, new List<string>(){marker_H5}}, 
+                {    segment_5D2,  new List<string>(){marker_PF1}}, 
+                {    segment_5D3, new List<string>(){marker_PF2}},
+                {    segment_5D4, new List<string>(){marker_PF3}}
             };
 
             SetupMessagePack();
@@ -110,11 +225,11 @@ namespace ubc.ok.ovilab.ViconUnityStream
 
         private readonly Dictionary<string, List<string>> fingerSegments = new Dictionary<string, List<string>>()
         {
-            {"R1", new List<string>{"R1D1", "R1D2", "R1D3", "R1D4"}},
-            {"R2", new List<string>{"R2D1", "R2D2", "R2D3", "R2D4"}},
-            {"R3", new List<string>{"R3D1", "R3D2", "R3D3", "R3D4"}},
-            {"R4", new List<string>{"R4D1", "R4D2", "R4D3", "R4D4"}},
-            {"R5", new List<string>{"R5D1", "R5D2", "R5D3", "R5D4"}},
+            {"R1", new List<string>{segment_1D1, segment_1D2, segment_1D3, segment_1D4}},
+            {"R2", new List<string>{segment_2D1, segment_2D2, segment_2D3, segment_2D4}},
+            {"R3", new List<string>{segment_3D1, segment_3D2, segment_3D3, segment_3D4}},
+            {"R4", new List<string>{segment_4D1, segment_4D2, segment_4D3, segment_4D4}},
+            {"R5", new List<string>{segment_5D1, segment_5D2, segment_5D3, segment_5D4}},
         };
 
 
@@ -133,37 +248,37 @@ namespace ubc.ok.ovilab.ViconUnityStream
             }
 
             // What sorcery is this?
-            palm = segments["Hand"] - (segments["R3D1"] + 0.5f * (segments["R4D1"] - segments["R4D1"]));
-            normal = Vector3.Cross(palm, segments["R4D1"] - segments["R3D1"]);
+            palm = segments[segment_Hand] - (segments[segment_3D1] + 0.5f * (segments[segment_4D1] - segments[segment_4D1]));
+            normal = Vector3.Cross(palm, segments[segment_4D1] - segments[segment_3D1]);
 
-            if (segments[segmentChild["R1D1"]] != Vector3.zero && segments["R1D1"] != Vector3.zero)
+            if (segments[segmentChild[segment_1D1]] != Vector3.zero && segments[segment_1D1] != Vector3.zero)
             {
-                baseVectors["R1"] = segments[segmentChild["R1D1"]] - segments["R1D1"];
+                baseVectors["R1"] = segments[segmentChild[segment_1D1]] - segments[segment_1D1];
             }
 
-            if (segments[segmentChild["R2D1"]] != Vector3.zero && segments["R2D1"] != Vector3.zero)
+            if (segments[segmentChild[segment_2D1]] != Vector3.zero && segments[segment_2D1] != Vector3.zero)
             {
-                baseVectors["R2"] = segments[segmentChild["R2D1"]] - segments["R2D1"];
+                baseVectors["R2"] = segments[segmentChild[segment_2D1]] - segments[segment_2D1];
             }
 
-            if (segments[segmentChild["R3D1"]] != Vector3.zero && segments["R3D1"] != Vector3.zero)
+            if (segments[segmentChild[segment_3D1]] != Vector3.zero && segments[segment_3D1] != Vector3.zero)
             {
-                baseVectors["R3"] = segments[segmentChild["R3D1"]] - segments["R3D1"];
+                baseVectors["R3"] = segments[segmentChild[segment_3D1]] - segments[segment_3D1];
             }
 
-            if (segments[segmentChild["R4D1"]] != Vector3.zero && segments["R4D1"] != Vector3.zero)
+            if (segments[segmentChild[segment_4D1]] != Vector3.zero && segments[segment_4D1] != Vector3.zero)
             {
-                baseVectors["R4"] = segments[segmentChild["R4D1"]] - segments["R4D1"];
+                baseVectors["R4"] = segments[segmentChild[segment_4D1]] - segments[segment_4D1];
             }
 
-            if (segments[segmentChild["R5D1"]] != Vector3.zero && segments["R5D1"] != Vector3.zero)
+            if (segments[segmentChild[segment_5D1]] != Vector3.zero && segments[segment_5D1] != Vector3.zero)
             {
-                baseVectors["R5"] = segments[segmentChild["R5D1"]] - segments["R5D1"];
+                baseVectors["R5"] = segments[segmentChild[segment_5D1]] - segments[segment_5D1];
             }
 
-            // Debug.Log(data.data["RTH3P"] + "  -  "+ data.data["RTH3"]);
-            var p1 = data.data["RTH3P"];
-            var p2 = data.data["RTH3"];
+            // Debug.Log(data.data[marker_TH3P] + "  -  "+ data.data[marker_TH3]);
+            var p1 = data.data[marker_TH3P];
+            var p2 = data.data[marker_TH3];
             Vector3 p1Position = new Vector3(p1[0], p1[2], p1[1]);
             Vector3 p2Position = new Vector3(p2[0], p2[2], p2[1]);
 
@@ -183,8 +298,8 @@ namespace ubc.ok.ovilab.ViconUnityStream
 
                 baseVectors["R1_right"] = p1p2Vector;
             }
-            // Vector3.Cross(segments["R1D4"] - segments["R1D3"], segments["R1D3"] - segments["R1D2"]);
-            // Debug.DrawRay(segments["R3D1"], normal);
+            // Vector3.Cross(segments[segment_1D4] - segments[segment_1D3], segments[segment_1D3] - segments[segment_1D2]);
+            // Debug.DrawRay(segments[segment_3D1], normal);
             //Debug.Log(normal.magnitude);
             //Debug.Log((normal * 0.01f).magnitude);
 
@@ -422,7 +537,7 @@ namespace ubc.ok.ovilab.ViconUnityStream
                 previousSegments[BoneName] = BonePosition;
             }
             AddBoneDataToWriter(Bone);
-            if (Bone.name == "Hand")
+            if (Bone.name == segment_Hand)
                 handWorldToLocalMatrix = Bone.worldToLocalMatrix;
         }
 
@@ -438,5 +553,10 @@ namespace ubc.ok.ovilab.ViconUnityStream
                 return false;
             }
         }
+    }
+
+    [Serialize]
+    public enum Handedness {
+        Left, Right
     }
 }
