@@ -78,8 +78,12 @@ namespace ubc.ok.ovilab.ViconUnityStream
         private string marker_PF2 = "PF2";
         private string marker_PF3 = "PF3";
 
-        Dictionary<string, string> segmentChild;
-        Dictionary<string, string> segmentParents;
+        private Dictionary<string, Vector3> baseVectors = new Dictionary<string, Vector3>();
+        private Dictionary<string, Vector3> previousSegments = new Dictionary<string, Vector3>();
+
+        private Dictionary<string, string> segmentChild;
+        private Dictionary<string, string> segmentParents;
+        private Dictionary<string, List<string>> fingerSegments;
 
         void Start()
         {
@@ -216,22 +220,20 @@ namespace ubc.ok.ovilab.ViconUnityStream
                 {    segment_5D4, new List<string>(){marker_PF3}}
             };
 
+            fingerSegments = new Dictionary<string, List<string>>()
+            {
+                {"R1", new List<string>{segment_1D1, segment_1D2, segment_1D3, segment_1D4}},
+                {"R2", new List<string>{segment_2D1, segment_2D2, segment_2D3, segment_2D4}},
+                {"R3", new List<string>{segment_3D1, segment_3D2, segment_3D3, segment_3D4}},
+                {"R4", new List<string>{segment_4D1, segment_4D2, segment_4D3, segment_4D4}},
+                {"R5", new List<string>{segment_5D1, segment_5D2, segment_5D3, segment_5D4}},
+            };
+
+
             SetupMessagePack();
             SetupWriter();
             SetupFilter();
         }
-        private Dictionary<string, Vector3> baseVectors = new Dictionary<string, Vector3>();
-        private Dictionary<string, Vector3> previousSegments = new Dictionary<string, Vector3>();
-
-        private readonly Dictionary<string, List<string>> fingerSegments = new Dictionary<string, List<string>>()
-        {
-            {"R1", new List<string>{segment_1D1, segment_1D2, segment_1D3, segment_1D4}},
-            {"R2", new List<string>{segment_2D1, segment_2D2, segment_2D3, segment_2D4}},
-            {"R3", new List<string>{segment_3D1, segment_3D2, segment_3D3, segment_3D4}},
-            {"R4", new List<string>{segment_4D1, segment_4D2, segment_4D3, segment_4D4}},
-            {"R5", new List<string>{segment_5D1, segment_5D2, segment_5D3, segment_5D4}},
-        };
-
 
         protected override Dictionary<string, Vector3> ProcessSegments(Dictionary<string, Vector3> segments, Data data)
         {
@@ -555,7 +557,6 @@ namespace ubc.ok.ovilab.ViconUnityStream
         }
     }
 
-    [Serialize]
     public enum Handedness {
         Left, Right
     }
