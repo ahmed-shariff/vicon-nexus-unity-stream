@@ -1,0 +1,145 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &7287689130139130639
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.022
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.022
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.022
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_Name
+      value: hand_left Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 2783184059496819323, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: -8693172909504858975, guid: 1f857fbd164c5b04198fade34cecefd0, type: 3}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+--- !u!1 &7629796470008718942 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+  m_PrefabInstance: {fileID: 7287689130139130639}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1407556507
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7629796470008718942}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c443a0e3975e7d4694df76653e9971a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  subjectName: left
+  scale_1: 0.001
+  scale_2: 0.02
+  rootSegment: Arm
+  defaultData: '{"data": {"LWRB": [-1080.2657098069255, -519.4200174065976, 747.8029909617651],
+    "LFA2": [-1091.5042176010686, -520.9265699534575, 739.1255621476512], "LFA1":
+    [-1107.6625222743692, -547.8039940933618, 771.6019320327371], "LWRA": [-1095.665204767219,
+    -544.9311125985229, 779.1053234492456], "LH1": [-1070.1552807804082, -525.4436911985352,
+    803.8286857810923], "LH3": [-1028.1529010609077, -495.5104132888352, 812.8709144256296],
+    "LH6": [-1053.75207175754, -509.56466139902614, 770.9901099733133], "LTH1": [-1074.9355660121357,
+    -568.2333119294672, 797.9889368655962], "LTH2": [-1052.2721488406794, -574.015110017345,
+    826.5685558125753], "LTH3": [-1028.1017777794268, -582.7914046395196, 835.4987874380524],
+    "LTH3P": [-1030.0901099022044, -565.99094496767, 838.4249086561996], "LTH4":
+    [-999.0272493514926, -576.8255128894564, 844.109713053126], "LH2": [-1043.5354477604756,
+    -509.0815151779117, 833.3770750888068], "LIF1": [-1018.7688379022161, -496.15971370530076,
+    854.1521107324489], "LIF2": [-1004.1933992193884, -493.7967846231832, 869.9129115626131],
+    "LIF3": [-984.4347954702936, -494.8365099694304, 886.0260057423699], "LTF1":
+    [-992.2308103195475, -482.9368112630433, 839.1432338141393], "LTF2": [-976.6208550728977,
+    -484.3901086049482, 852.5346571942143], "LTF3": [-957.5462407852505, -491.5776685683718,
+    866.6870547268652], "LH4": [-1020.6888101132001, -494.485515561916, 792.2543384438824],
+    "LRF1": [-996.220920217182, -485.5020973788077, 805.0588393687555], "LRF2": [-979.6761835822451,
+    -481.282181416159, 816.0803650042657], "LRF3": [-961.7890107259268, -481.7059414947827,
+    827.0373562948001], "LRF4": [-943.6478261040003, -487.9717724943945, 839.2728203974283],
+    "LH5": [-1012.9259301021267, -496.96810899191985, 773.5096940701657], "LPF1":
+    [-985.3670423961476, -485.4863074890551, 782.0870127467027], "LPF2": [-962.0171780270105,
+    -483.45535734530023, 790.5464467579735], "LPF3": [-946.5056701498569, -486.9560977941394,
+    797.6919593175426]}, "hierachy": {"Arm": ["LWRB", "LFA2", "LFA1", "LWRA"], "Hand":
+    ["LH1", "LH3", "LH6"], "L1D1": ["LTH1"], "L1D2": ["LTH2"], "L1D3": ["LTH3", "LTH3P",
+    "LTH4"], "L2D1": ["LH2", "LIF1"], "L2D2": ["LIF2"], "L2D3": ["LIF3"], "L3D1":
+    ["LTF1"], "L3D2": ["LTF2"], "L3D3": ["LTF3"], "L4D1": ["LH4", "LRF1"], "L4D2":
+    ["LRF2"], "L4D3": ["LRF3", "LRF4"], "L5D1": ["LH5", "LPF1"], "L5D2": ["LPF2"],
+    "L5D3": ["LPF3"]}}'
+  useDefaultData: 1
+  useJson: 1
+  enableWriteData: 0
+  URI: http://206.87.62.47:5001/marker/left
+  outputText: {fileID: 0}
+  gapFillingStrategy: 3
+  dataQualityThreshold: 5
+  OnHidingSubject:
+    m_PersistentCalls:
+      m_Calls: []
+  OnShowingSubject:
+    m_PersistentCalls:
+      m_Calls: []
+  normalOffset: 0.001
+  setPosition: 1
+  setScale: 0
+  handedness: 0

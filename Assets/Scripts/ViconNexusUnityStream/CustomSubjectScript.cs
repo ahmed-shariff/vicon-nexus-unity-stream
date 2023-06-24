@@ -184,7 +184,7 @@ namespace ubc.ok.ovilab.ViconUnityStream
                 processedRequest = false;
                 if (useDefaultData)
                 {
-                    ProcessData(defaultDataObj);
+                    ProcessData(defaultDataObj, defaultData);
                     processedRequest = true;
                     processFrameFlag = true;
                 }
@@ -216,15 +216,18 @@ namespace ubc.ok.ovilab.ViconUnityStream
                     try
                     {
                         Data data;
+                        string text;
                         if (useJson)
                         {
-                            data = JsonConvert.DeserializeObject<Data>(webRequest.downloadHandler.text);
+                            text = webRequest.downloadHandler.text;
+                            data = JsonConvert.DeserializeObject<Data>(text);
                         }
                         else
                         {
                             data = MessagePackSerializer.Deserialize<Data>(webRequest.downloadHandler.data);
+                            text = JsonConvert.SerializeObject(data);
                         }
-                        ProcessData(data);
+                        ProcessData(data, text);
                     } catch(Exception err){
                         Debug.Log("Exception: " + err.ToString());
                         Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
@@ -250,9 +253,9 @@ namespace ubc.ok.ovilab.ViconUnityStream
         private Vector3 pos, k_vector, t_prev_vector, t_current_vector;
         private Quaternion rot;
 
-        void ProcessData(Data data)
+        void ProcessData(Data data, string text)
         {
-            // rawData = inputText;
+            rawData = text;
             sensorTriggered = data.sensorTriggered;
 	
             if (outputText)

@@ -6,6 +6,7 @@ namespace ubc.ok.ovilab.ViconUnityStream
 {
     public class CustomHandScript : CustomSubjectScript
     {
+
         public float normalOffset = 0.001f;
         public bool setPosition = true;
         public bool setScale = true;
@@ -78,6 +79,12 @@ namespace ubc.ok.ovilab.ViconUnityStream
         private string marker_PF2 = "PF2";
         private string marker_PF3 = "PF3";
 
+        private string finger_1 = "1";
+        private string finger_2 = "2";
+        private string finger_3 = "3";
+        private string finger_4 = "4";
+        private string finger_5 = "5";
+
         private Dictionary<string, Vector3> baseVectors = new Dictionary<string, Vector3>();
         private Dictionary<string, Vector3> previousSegments = new Dictionary<string, Vector3>();
 
@@ -134,6 +141,11 @@ namespace ubc.ok.ovilab.ViconUnityStream
             marker_PF1 = prefix + marker_PF1;
             marker_PF2 = prefix + marker_PF2;
             marker_PF3 = prefix + marker_PF3;
+            finger_1 = prefix + finger_1;
+            finger_2 = prefix + finger_2;
+            finger_3 = prefix + finger_3;
+            finger_4 = prefix + finger_4;
+            finger_5 = prefix + finger_5;
 
             segmentChild = new Dictionary<string, string>()
             {
@@ -222,17 +234,22 @@ namespace ubc.ok.ovilab.ViconUnityStream
 
             fingerSegments = new Dictionary<string, List<string>>()
             {
-                {"R1", new List<string>{segment_1D1, segment_1D2, segment_1D3, segment_1D4}},
-                {"R2", new List<string>{segment_2D1, segment_2D2, segment_2D3, segment_2D4}},
-                {"R3", new List<string>{segment_3D1, segment_3D2, segment_3D3, segment_3D4}},
-                {"R4", new List<string>{segment_4D1, segment_4D2, segment_4D3, segment_4D4}},
-                {"R5", new List<string>{segment_5D1, segment_5D2, segment_5D3, segment_5D4}},
+                {finger_1, new List<string>{segment_1D1, segment_1D2, segment_1D3, segment_1D4}},
+                {finger_2, new List<string>{segment_2D1, segment_2D2, segment_2D3, segment_2D4}},
+                {finger_3, new List<string>{segment_3D1, segment_3D2, segment_3D3, segment_3D4}},
+                {finger_4, new List<string>{segment_4D1, segment_4D2, segment_4D3, segment_4D4}},
+                {finger_5, new List<string>{segment_5D1, segment_5D2, segment_5D3, segment_5D4}},
             };
 
 
             SetupMessagePack();
             SetupWriter();
             SetupFilter();
+        }
+
+        protected bool isRightHand()
+        {
+            return handedness == Handedness.Right;
         }
 
         protected override Dictionary<string, Vector3> ProcessSegments(Dictionary<string, Vector3> segments, Data data)
@@ -252,30 +269,34 @@ namespace ubc.ok.ovilab.ViconUnityStream
             // What sorcery is this?
             palm = segments[segment_Hand] - (segments[segment_3D1] + 0.5f * (segments[segment_4D1] - segments[segment_4D1]));
             normal = Vector3.Cross(palm, segments[segment_4D1] - segments[segment_3D1]);
+            if (!isRightHand())
+            {
+                 normal = -normal;
+            }
 
             if (segments[segmentChild[segment_1D1]] != Vector3.zero && segments[segment_1D1] != Vector3.zero)
             {
-                baseVectors["R1"] = segments[segmentChild[segment_1D1]] - segments[segment_1D1];
+                baseVectors[finger_1] = segments[segmentChild[segment_1D1]] - segments[segment_1D1];
             }
 
             if (segments[segmentChild[segment_2D1]] != Vector3.zero && segments[segment_2D1] != Vector3.zero)
             {
-                baseVectors["R2"] = segments[segmentChild[segment_2D1]] - segments[segment_2D1];
+                baseVectors[finger_2] = segments[segmentChild[segment_2D1]] - segments[segment_2D1];
             }
 
             if (segments[segmentChild[segment_3D1]] != Vector3.zero && segments[segment_3D1] != Vector3.zero)
             {
-                baseVectors["R3"] = segments[segmentChild[segment_3D1]] - segments[segment_3D1];
+                baseVectors[finger_3] = segments[segmentChild[segment_3D1]] - segments[segment_3D1];
             }
 
             if (segments[segmentChild[segment_4D1]] != Vector3.zero && segments[segment_4D1] != Vector3.zero)
             {
-                baseVectors["R4"] = segments[segmentChild[segment_4D1]] - segments[segment_4D1];
+                baseVectors[finger_4] = segments[segmentChild[segment_4D1]] - segments[segment_4D1];
             }
 
             if (segments[segmentChild[segment_5D1]] != Vector3.zero && segments[segment_5D1] != Vector3.zero)
             {
-                baseVectors["R5"] = segments[segmentChild[segment_5D1]] - segments[segment_5D1];
+                baseVectors[finger_5] = segments[segmentChild[segment_5D1]] - segments[segment_5D1];
             }
 
             // Debug.Log(data.data[marker_TH3P] + "  -  "+ data.data[marker_TH3]);
@@ -293,7 +314,9 @@ namespace ubc.ok.ovilab.ViconUnityStream
                 /// PlamBase.up will be negative (pointing up from palm)
 
                 Vector3 p1p2Vector = p2Position - p1Position;
-                if (Vector3.Dot(p1p2Vector, normal) < 0)
+                float dotPrduct = Vector3.Dot(p1p2Vector, isRightHand() ? normal : -normal);
+
+                if (dotPrduct < 0)
                 {
                     p1p2Vector = -p1p2Vector;
                 }
@@ -307,6 +330,7 @@ namespace ubc.ok.ovilab.ViconUnityStream
 
             /// Using segments to store the normal vector instead of position?
             segments["PalmBase"] = normal;// *0.01f;
+
             if (palm == Vector3.zero)
                 noHand = true;
             else
@@ -500,7 +524,7 @@ namespace ubc.ok.ovilab.ViconUnityStream
                                     {
                                         Vector3 right;
                                         Vector3 forward;
-                                        if (fingerId == "R1")
+                                        if (fingerId == finger_1)
                                         {
                                             right = baseVectors["R1_right"];
                                             //right = Vector3.Cross(normal, baseVectors[fingerId]);
@@ -522,13 +546,13 @@ namespace ubc.ok.ovilab.ViconUnityStream
                             }
                             if (setPosition)
                             {
-                                if (fingerId == "R1")
+                                if (fingerId == finger_1)
                                     Bone.position += Bone.forward * normalOffset * 0.9f;
-                                else if (fingerId == "R3")
+                                else if (fingerId == finger_3)
                                     Bone.position += Bone.forward * normalOffset * 1.08f;
-                                else if (fingerId == "R4")
+                                else if (fingerId == finger_4)
                                     Bone.position += Bone.forward * normalOffset * 1.13f;
-                                else if (fingerId == "R5")
+                                else if (fingerId == finger_5)
                                     Bone.position += Bone.forward * normalOffset * 1.2f;
                                 else
                                     Bone.position += Bone.forward * normalOffset;
@@ -545,7 +569,7 @@ namespace ubc.ok.ovilab.ViconUnityStream
 
         protected override bool TestSegmentsQulity(Dictionary<string, Vector3> segments)
         {
-            float d3_d1_dot = Vector3.Dot(segments["R5D3"] - segments["R2D3"], segments["R5D1"] - segments["R2D1"]);
+            float d3_d1_dot = Vector3.Dot(segments[segment_5D3] - segments[segment_2D3], segments[segment_5D1] - segments[segment_2D1]);
             if (d3_d1_dot > 0)
             {
                 return true;
