@@ -27,6 +27,7 @@ namespace ubc.ok.ovilab.ViconUnityStream
         [HideInInspector] public bool useDefaultData = false;
         [HideInInspector] public bool useJson = true;
         [HideInInspector] public bool enableWriteData = true;
+        [HideInInspector] public string baseURI = "http://127.0.0.1:5000/marker/";
         [HideInInspector] public string URI = "http://127.0.0.1:5000/marker/test";
         private bool processedRequest = true;
         private static readonly HttpClient client = new HttpClient();
@@ -138,6 +139,11 @@ namespace ubc.ok.ovilab.ViconUnityStream
         {
         }
 
+        public void UpdateURI()
+        {
+            URI = baseURI + subjectName;
+        }
+
         private string GetPath(string suffix)
         {
             //#if UNITY_EDITOR
@@ -178,7 +184,7 @@ namespace ubc.ok.ovilab.ViconUnityStream
                 "}";
         }
 
-        void Update()
+        protected virtual void Update()
         {
             if (processedRequest){
                 processedRequest = false;

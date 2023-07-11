@@ -47,7 +47,8 @@ namespace ubc.ok.ovilab.ViconUnityStream.Editor
                     script.useDefaultData = CustomSubjectConfig.instance.useDefaultData;
                     script.useJson = CustomSubjectConfig.instance.useJson;
                     script.enableWriteData = CustomSubjectConfig.instance.enableWriteData;
-                    script.URI = CustomSubjectConfig.instance.baseURI + script.subjectName;
+                    script.baseURI = CustomSubjectConfig.instance.baseURI;
+                    script.UpdateURI();
                     EditorUtility.SetDirty(script);
                 }
                 Debug.Log($"Setting URI: {customSubjectScript.URI};    Using default data: {customSubjectScript.useDefaultData};     Using json: {customSubjectScript.useJson};    Writing data: {customSubjectScript.enableWriteData};    Scripts updated: \n" + string.Join(",\n", subjectScripts));

@@ -19,80 +19,80 @@ namespace ubc.ok.ovilab.ViconUnityStream
         // NOTE: Considered using an enum with a dictionary, but that
         // means using a dictionary lookup everytime a name is needed,
         // so doing it the ugly (or not?) way
-        private string segment_Arm = "Arm";
-        private string segment_Hand = "Hand";
-        private string segment_1D1 = "1D1";
-        private string segment_1D2 = "1D2";
-        private string segment_1D3 = "1D3";
-        private string segment_1D4 = "1D4";
-        private string segment_2D1 = "2D1";
-        private string segment_2D2 = "2D2";
-        private string segment_2D3 = "2D3";
-        private string segment_2D4 = "2D4";
-        private string segment_3D1 = "3D1";
-        private string segment_3D2 = "3D2";
-        private string segment_3D3 = "3D3";
-        private string segment_3D4 = "3D4";
-        private string segment_4D1 = "4D1";
-        private string segment_4D2 = "4D2";
-        private string segment_4D3 = "4D3";
-        private string segment_4D4 = "4D4";
-        private string segment_5D1 = "5D1";
-        private string segment_5D2 = "5D2";
-        private string segment_5D3 = "5D3";
-        private string segment_5D4 = "5D4";
+        protected string segment_Arm = "Arm";
+        protected string segment_Hand = "Hand";
+        protected string segment_1D1 = "1D1";
+        protected string segment_1D2 = "1D2";
+        protected string segment_1D3 = "1D3";
+        protected string segment_1D4 = "1D4";
+        protected string segment_2D1 = "2D1";
+        protected string segment_2D2 = "2D2";
+        protected string segment_2D3 = "2D3";
+        protected string segment_2D4 = "2D4";
+        protected string segment_3D1 = "3D1";
+        protected string segment_3D2 = "3D2";
+        protected string segment_3D3 = "3D3";
+        protected string segment_3D4 = "3D4";
+        protected string segment_4D1 = "4D1";
+        protected string segment_4D2 = "4D2";
+        protected string segment_4D3 = "4D3";
+        protected string segment_4D4 = "4D4";
+        protected string segment_5D1 = "5D1";
+        protected string segment_5D2 = "5D2";
+        protected string segment_5D3 = "5D3";
+        protected string segment_5D4 = "5D4";
 
         // Hand and arm markers
-        private string marker_FA2 = "FA2";
-        private string marker_FA1 = "FA1";
-        private string marker_WRA = "WRA";
-        private string marker_WRB = "WRB";
+        protected string marker_FA2 = "FA2";
+        protected string marker_FA1 = "FA1";
+        protected string marker_WRA = "WRA";
+        protected string marker_WRB = "WRB";
     
         // thumb markers
-        private string marker_TH1 = "TH1";
-        private string marker_TH2 = "TH2";
-        private string marker_TH3 = "TH3";
-        private string marker_TH3P = "TH3P";
-        private string marker_TH4 = "TH4";
+        protected string marker_TH1 = "TH1";
+        protected string marker_TH2 = "TH2";
+        protected string marker_TH3 = "TH3";
+        protected string marker_TH3P = "TH3P";
+        protected string marker_TH4 = "TH4";
 
         // index finger markers
-        private string marker_H2 = "H2";
-        private string marker_IF1 = "IF1";
-        private string marker_IF2 = "IF2";
-        private string marker_IF3 = "IF3";
+        protected string marker_H2 = "H2";
+        protected string marker_IF1 = "IF1";
+        protected string marker_IF2 = "IF2";
+        protected string marker_IF3 = "IF3";
 
         // middle finger markers
-        private string marker_H3 = "H3";
-        private string marker_TF1 = "TF1";
-        private string marker_TF2 = "TF2";
-        private string marker_TF3 = "TF3";
+        protected string marker_H3 = "H3";
+        protected string marker_TF1 = "TF1";
+        protected string marker_TF2 = "TF2";
+        protected string marker_TF3 = "TF3";
 
         // ring finger markers
-        private string marker_H4 = "H4";
-        private string marker_RF2 = "RF2";
-        private string marker_RF3 = "RF3";
-        private string marker_RF4 = "RF4";
+        protected string marker_H4 = "H4";
+        protected string marker_RF2 = "RF2";
+        protected string marker_RF3 = "RF3";
+        protected string marker_RF4 = "RF4";
 
         // pinky finger markers
-        private string marker_H5 = "H5";
-        private string marker_PF1 = "PF1";
-        private string marker_PF2 = "PF2";
-        private string marker_PF3 = "PF3";
+        protected string marker_H5 = "H5";
+        protected string marker_PF1 = "PF1";
+        protected string marker_PF2 = "PF2";
+        protected string marker_PF3 = "PF3";
 
-        private string finger_1 = "1";
-        private string finger_2 = "2";
-        private string finger_3 = "3";
-        private string finger_4 = "4";
-        private string finger_5 = "5";
+        protected string finger_1 = "1";
+        protected string finger_2 = "2";
+        protected string finger_3 = "3";
+        protected string finger_4 = "4";
+        protected string finger_5 = "5";
 
-        private Dictionary<string, Vector3> baseVectors = new Dictionary<string, Vector3>();
-        private Dictionary<string, Vector3> previousSegments = new Dictionary<string, Vector3>();
+        protected Dictionary<string, Vector3> baseVectors = new Dictionary<string, Vector3>();
+        protected Dictionary<string, Vector3> previousSegments = new Dictionary<string, Vector3>();
 
-        private Dictionary<string, string> segmentChild;
-        private Dictionary<string, string> segmentParents;
-        private Dictionary<string, List<string>> fingerSegments;
+        protected Dictionary<string, string> segmentChild;
+        protected Dictionary<string, string> segmentParents;
+        protected Dictionary<string, List<string>> fingerSegments;
 
-        void Start()
+        protected virtual void Start()
         {
             string prefix = handedness == Handedness.Right ? "R": "L";
 
@@ -274,54 +274,57 @@ namespace ubc.ok.ovilab.ViconUnityStream
                  normal = -normal;
             }
 
-            if (segments[segmentChild[segment_1D1]] != Vector3.zero && segments[segment_1D1] != Vector3.zero)
+            if (segmentChild.ContainsKey(segment_1D1) && segments[segmentChild[segment_1D1]] != Vector3.zero && segments[segment_1D1] != Vector3.zero)
             {
                 baseVectors[finger_1] = segments[segmentChild[segment_1D1]] - segments[segment_1D1];
             }
 
-            if (segments[segmentChild[segment_2D1]] != Vector3.zero && segments[segment_2D1] != Vector3.zero)
+            if (segmentChild.ContainsKey(segment_2D1) && segments[segmentChild[segment_2D1]] != Vector3.zero && segments[segment_2D1] != Vector3.zero)
             {
                 baseVectors[finger_2] = segments[segmentChild[segment_2D1]] - segments[segment_2D1];
             }
 
-            if (segments[segmentChild[segment_3D1]] != Vector3.zero && segments[segment_3D1] != Vector3.zero)
+            if (segmentChild.ContainsKey(segment_3D1) && segments[segmentChild[segment_3D1]] != Vector3.zero && segments[segment_3D1] != Vector3.zero)
             {
                 baseVectors[finger_3] = segments[segmentChild[segment_3D1]] - segments[segment_3D1];
             }
 
-            if (segments[segmentChild[segment_4D1]] != Vector3.zero && segments[segment_4D1] != Vector3.zero)
+            if (segmentChild.ContainsKey(segment_4D1) && segments[segmentChild[segment_4D1]] != Vector3.zero && segments[segment_4D1] != Vector3.zero)
             {
                 baseVectors[finger_4] = segments[segmentChild[segment_4D1]] - segments[segment_4D1];
             }
 
-            if (segments[segmentChild[segment_5D1]] != Vector3.zero && segments[segment_5D1] != Vector3.zero)
+            if (segmentChild.ContainsKey(segment_5D1) && segments[segmentChild[segment_5D1]] != Vector3.zero && segments[segment_5D1] != Vector3.zero)
             {
                 baseVectors[finger_5] = segments[segmentChild[segment_5D1]] - segments[segment_5D1];
             }
 
             // Debug.Log(data.data[marker_TH3P] + "  -  "+ data.data[marker_TH3]);
-            var p1 = data.data[marker_TH3P];
-            var p2 = data.data[marker_TH3];
-            Vector3 p1Position = new Vector3(p1[0], p1[2], p1[1]);
-            Vector3 p2Position = new Vector3(p2[0], p2[2], p2[1]);
-
-            /// If one of the datapoints is missing, use the previous values, do this by not modifying the baseVectors
-            if (p1[0] != 0 || p2[0] != 0)
+            if (data.data.ContainsKey(marker_TH3P) && data.data.ContainsKey(marker_TH3))
             {
-                /// Ensure p1 and p2 are not switched, as it can happen when accuracy is low
-                /// PalmBase's Transform.up should be pointing into the palm.
-                /// This is based on the assumption that the RTH3P->RTH3 vector, relative to
-                /// PlamBase.up will be negative (pointing up from palm)
+                var p1 = data.data[marker_TH3P];
+                var p2 = data.data[marker_TH3];
+                Vector3 p1Position = new Vector3(p1[0], p1[2], p1[1]);
+                Vector3 p2Position = new Vector3(p2[0], p2[2], p2[1]);
 
-                Vector3 p1p2Vector = p2Position - p1Position;
-                float dotPrduct = Vector3.Dot(p1p2Vector, isRightHand() ? normal : -normal);
-
-                if (dotPrduct < 0)
+                /// If one of the datapoints is missing, use the previous values, do this by not modifying the baseVectors
+                if (p1[0] != 0 || p2[0] != 0)
                 {
-                    p1p2Vector = -p1p2Vector;
-                }
+                    /// Ensure p1 and p2 are not switched, as it can happen when accuracy is low
+                    /// PalmBase's Transform.up should be pointing into the palm.
+                    /// This is based on the assumption that the RTH3P->RTH3 vector, relative to
+                    /// PlamBase.up will be negative (pointing up from palm)
 
-                baseVectors["R1_right"] = p1p2Vector;
+                    Vector3 p1p2Vector = p2Position - p1Position;
+                    float dotPrduct = Vector3.Dot(p1p2Vector, isRightHand() ? normal : -normal);
+
+                    if (dotPrduct < 0)
+                    {
+                        p1p2Vector = -p1p2Vector;
+                    }
+
+                    baseVectors["R1_right"] = p1p2Vector;
+                }
             }
             // Vector3.Cross(segments[segment_1D4] - segments[segment_1D3], segments[segment_1D3] - segments[segment_1D2]);
             // Debug.DrawRay(segments[segment_3D1], normal);
@@ -569,14 +572,25 @@ namespace ubc.ok.ovilab.ViconUnityStream
 
         protected override bool TestSegmentsQulity(Dictionary<string, Vector3> segments)
         {
-            float d3_d1_dot = Vector3.Dot(segments[segment_5D3] - segments[segment_2D3], segments[segment_5D1] - segments[segment_2D1]);
-            if (d3_d1_dot > 0)
+            if (segments.ContainsKey(segment_5D3) &&
+                segments.ContainsKey(segment_2D3) &&
+                segments.ContainsKey(segment_5D1) &&
+                segments.ContainsKey(segment_2D1))
             {
-                return true;
+                float d3_d1_dot = Vector3.Dot(segments[segment_5D3] - segments[segment_2D3], segments[segment_5D1] - segments[segment_2D1]);
+                if (d3_d1_dot > 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
             else
             {
-                return false;
+                // TODO quality check when specific markers are missing
+                return true;
             }
         }
     }
