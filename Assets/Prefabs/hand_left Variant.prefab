@@ -38,6 +38,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -8969376918619090168, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_Name
+      value: L5D4_end_end
+      objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -98,14 +102,58 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -3854017628873959569, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_Name
+      value: L4D4_end_end
+      objectReference: {fileID: 0}
+    - target: {fileID: -1665032928279566481, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_Name
+      value: L3D4_end_end
+      objectReference: {fileID: 0}
+    - target: {fileID: -1468555214628963624, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_Name
+      value: L4D4_end
+      objectReference: {fileID: 0}
+    - target: {fileID: -1047886169612700227, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_Name
+      value: L2D4_end_end
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
       propertyPath: m_Name
       value: hand_left Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 1497728868313080950, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_Name
+      value: L5D4_end
       objectReference: {fileID: 0}
     - target: {fileID: 2783184059496819323, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: -8693172909504858975, guid: 1f857fbd164c5b04198fade34cecefd0, type: 3}
+    - target: {fileID: 4718386048342269596, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_Name
+      value: L4D4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5208120841351042878, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_Name
+      value: L5D4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5693366480722658481, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_Name
+      value: L3D4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5992939377401078018, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_Name
+      value: L3D4_end
+      objectReference: {fileID: 0}
+    - target: {fileID: 8093109615368074535, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_Name
+      value: L2D4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8131345891577764965, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
+      propertyPath: m_Name
+      value: L2D4_end
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 80ceb2b413a439e448affd9a1b2ee77d, type: 3}
 --- !u!4 &6797205076278715013 stripped
