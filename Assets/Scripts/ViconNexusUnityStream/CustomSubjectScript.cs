@@ -95,7 +95,8 @@ namespace ubc.ok.ovilab.ViconUnityStream
                 { "base1", new List<string>() { "base1"}},
                 { "base2", new List<string>() { "base2"}},
                 { "base3", new List<string>() { "base3"}},
-                { "base4", new List<string>() { "base4"}}
+                { "base4", new List<string>() { "base4"}},
+                { "base5", new List<string>() { "base5"}}
             };
 
             SetupMessagePack();
