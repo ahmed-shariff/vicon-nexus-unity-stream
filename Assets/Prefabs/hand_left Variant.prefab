@@ -213,6 +213,7 @@ MonoBehaviour:
   useDefaultData: 1
   useJson: 1
   enableWriteData: 0
+  baseURI: http://127.0.0.1:5000/marker/
   URI: http://206.87.62.47:5001/marker/left
   outputText: {fileID: 0}
   gapFillingStrategy: 3
@@ -223,7 +224,7 @@ MonoBehaviour:
   OnShowingSubject:
     m_PersistentCalls:
       m_Calls: []
-  normalOffset: 0.001
+  normalOffset: 0.009
   setPosition: 1
   setScale: 0
   handedness: 0

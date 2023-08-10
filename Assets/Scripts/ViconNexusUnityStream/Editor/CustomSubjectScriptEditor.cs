@@ -36,6 +36,7 @@ namespace ubc.ok.ovilab.ViconUnityStream.Editor
             EditorGUILayout.LabelField("<color=#eeeeee>----- Common Config -----</color>", new GUIStyle() { fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter, richText = true});
             EditorGUI.BeginChangeCheck();
             CustomSubjectConfig.instance.baseURI = EditorGUILayout.TextField("base URI", CustomSubjectConfig.instance.baseURI);
+            CustomSubjectConfig.instance.enabled = EditorGUILayout.Toggle("Enabled", CustomSubjectConfig.instance.enabled);
             CustomSubjectConfig.instance.useDefaultData = EditorGUILayout.Toggle("Use default data", CustomSubjectConfig.instance.useDefaultData);
             CustomSubjectConfig.instance.useJson = EditorGUILayout.Toggle("Use json for network", CustomSubjectConfig.instance.useJson);
             CustomSubjectConfig.instance.enableWriteData = EditorGUILayout.Toggle("Write data to file", CustomSubjectConfig.instance.enableWriteData);
@@ -44,6 +45,7 @@ namespace ubc.ok.ovilab.ViconUnityStream.Editor
                 CustomSubjectConfig.instance.Save();
                 foreach (CustomSubjectScript script in subjectScripts)
                 {
+                    script.enabled = CustomSubjectConfig.instance.enabled;
                     script.useDefaultData = CustomSubjectConfig.instance.useDefaultData;
                     script.useJson = CustomSubjectConfig.instance.useJson;
                     script.enableWriteData = CustomSubjectConfig.instance.enableWriteData;
@@ -51,7 +53,14 @@ namespace ubc.ok.ovilab.ViconUnityStream.Editor
                     script.UpdateURI();
                     EditorUtility.SetDirty(script);
                 }
-                Debug.Log($"Setting URI: {customSubjectScript.URI};    Using default data: {customSubjectScript.useDefaultData};     Using json: {customSubjectScript.useJson};    Writing data: {customSubjectScript.enableWriteData};    Scripts updated: \n" + string.Join(",\n", subjectScripts));
+                Debug.Log($"Updated {subjectScripts.Count} subject script(s):"+
+                          $"\n    Setting URI:        {customSubjectScript.URI};"+
+                          $"\n    Enabled:            {CustomSubjectConfig.instance.enabled};"+
+                          $"\n    Using default data: {customSubjectScript.useDefaultData};"+
+                          $"\n    Using json:         {customSubjectScript.useJson};"+
+                          $"\n    Writing data:       {customSubjectScript.enableWriteData};"+
+                          $"\n    Scripts updated: \n         " +
+                          string.Join(",\n         ", subjectScripts));
             }
 
             EditorGUILayout.Space();

@@ -8,6 +8,7 @@ namespace ubc.ok.ovilab.ViconUnityStream
     [FilePath("UserSettings/Vicon.config", FilePathAttribute.Location.ProjectFolder)]
     public class CustomSubjectConfig : ScriptableSingleton<CustomSubjectConfig>
     {
+        public bool enabled = true;
         public bool enableWriteData = true;
         public bool useDefaultData = false;
         public bool useJson = true;

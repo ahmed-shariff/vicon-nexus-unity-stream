@@ -137,11 +137,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c443a0e3975e7d4694df76653e9971a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  subjectName: right
   scale_1: 0.001
   scale_2: 0.02
   rootSegment: Arm
-  useDefaultData: 1
-  URI: http://127.0.0.1:5000/marker/test
   defaultData: '{"data": {"RWRB": [-543.6625324688598, 207.2696870612411, 298.7514053730324],
     "RFA2": [-532.0721277646578, 220.17137432871033, 301.01629761935317], "RFA1":
     [-520.1440660572242, 201.39104705712728, 339.41934514555805], "RWRA": [-532.6974300716365,
@@ -170,12 +169,24 @@ MonoBehaviour:
     "RTF3"], "R4D1": ["RH4", "RRF1"], "R4D2": ["RRF2"], "R4D3": ["RRF3", "RRF4"],
     "R5D1": ["RH5"], "R5D2": ["RPF1"], "R5D3": ["RPF2", "RPF3"]}, "sensorTriggered":
     true}'
+  useDefaultData: 1
+  useJson: 1
   enableWriteData: 1
+  baseURI: http://127.0.0.1:5000/marker/
+  URI: http://127.0.0.1:5000/marker/test
   outputText: {fileID: 0}
   gapFillingStrategy: 3
+  dataQualityThreshold: 5
+  OnHidingSubject:
+    m_PersistentCalls:
+      m_Calls: []
+  OnShowingSubject:
+    m_PersistentCalls:
+      m_Calls: []
   normalOffset: 0.009
   setPosition: 1
   setScale: 0
+  handedness: 1
 --- !u!4 &8174818904567633990 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4560416852423371491, guid: 0eae284ac9aff8342aaa1e01c09eff2d, type: 3}
