@@ -290,6 +290,9 @@ MonoBehaviour:
   base2: {fileID: 941707715742590654}
   base3: {fileID: 941707716179073076}
   base4: {fileID: 941707716453246449}
+  applyFilter: 1
+  filterMinCutoff: 0.1
+  filterBeta: 50
 --- !u!1 &941707717447344477
 GameObject:
   m_ObjectHideFlags: 0
